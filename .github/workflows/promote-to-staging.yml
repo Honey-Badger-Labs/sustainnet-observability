@@ -1,0 +1,171 @@
+name: Promote to Staging
+
+on:
+  workflow_dispatch:
+    inputs:
+      description:
+        description: 'Description of changes being promoted'
+        required: false
+        default: 'Promote development changes to staging'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  create-staging-pr:
+    name: Create Staging PR
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for differences
+        id: diff
+        run: |
+          # Check if there are commits in development not in staging
+          DIFF_COUNT=$(git rev-list --count staging..development 2>/dev/null || echo "0")
+
+          if [ "$DIFF_COUNT" == "0" ]; then
+            echo "No new commits to promote"
+            echo "has-changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "Found $DIFF_COUNT commits to promote"
+            echo "has-changes=true" >> $GITHUB_OUTPUT
+            echo "commit-count=$DIFF_COUNT" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check for existing PR
+        id: check-pr
+        if: steps.diff.outputs.has-changes == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+
+            const { data: prs } = await github.rest.pulls.list({
+              owner,
+              repo,
+              state: 'open',
+              head: `${owner}:development`,
+              base: 'staging'
+            });
+
+            if (prs.length > 0) {
+              console.log(`Found existing PR #${prs[0].number}`);
+              return { exists: true, number: prs[0].number };
+            }
+
+            return { exists: false };
+
+      - name: Create PR to staging
+        if: steps.diff.outputs.has-changes == 'true' && fromJson(steps.check-pr.outputs.result).exists == false
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+
+            // Get commits in development not in staging
+            const { data: comparison } = await github.rest.repos.compareCommits({
+              owner,
+              repo,
+              base: 'staging',
+              head: 'development'
+            });
+
+            const commitList = comparison.commits
+              .slice(0, 20)
+              .map(c => `- ${c.commit.message.split('\n')[0]}`)
+              .join('\n');
+
+            const moreCommits = comparison.commits.length > 20
+              ? `\n\n... and ${comparison.commits.length - 20} more commits`
+              : '';
+
+            const fileChanges = comparison.files || [];
+            const fileStats = {
+              added: fileChanges.filter(f => f.status === 'added').length,
+              modified: fileChanges.filter(f => f.status === 'modified').length,
+              removed: fileChanges.filter(f => f.status === 'removed').length
+            };
+
+            const body = `## 🚀 Promote to Staging
+
+            ${{ github.event.inputs.description }}
+
+            ### Summary
+            - **Commits:** ${comparison.commits.length}
+            - **Files changed:** ${fileChanges.length}
+              - Added: ${fileStats.added}
+              - Modified: ${fileStats.modified}
+              - Removed: ${fileStats.removed}
+
+            ### Commits
+            ${commitList}${moreCommits}
+
+            ### Pre-Staging Checklist
+            - [ ] All development CI checks pass
+            - [ ] Code has been reviewed (if applicable)
+            - [ ] No known blocking issues
+            - [ ] Ready for staging deployment and testing
+
+            ### What Happens Next
+            Upon merge to staging:
+            1. ✅ Deploy observability configs to staging
+            2. ✅ Run integration tests
+            3. ✅ Run regression tests
+            4. ✅ If all tests pass, auto-create PR to main
+
+            ---
+            *Triggered by: @${{ github.actor }}*`;
+
+            const { data: pr } = await github.rest.pulls.create({
+              owner,
+              repo,
+              title: '🚀 Promote to Staging',
+              head: 'development',
+              base: 'staging',
+              body: body
+            });
+
+            // Add labels
+            await github.rest.issues.addLabels({
+              owner,
+              repo,
+              issue_number: pr.number,
+              labels: ['staging', 'promotion']
+            });
+
+            console.log(`✅ Created PR #${pr.number}`);
+
+            return pr.number;
+
+      - name: Update existing PR
+        if: steps.diff.outputs.has-changes == 'true' && fromJson(steps.check-pr.outputs.result).exists == true
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const prNumber = ${{ fromJson(steps.check-pr.outputs.result).number }};
+
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number: prNumber,
+              body: `🔄 Staging promotion triggered by @${{ github.actor }}.
+
+            This PR already exists. Please review and merge when ready.
+
+            **Note:** ${{ github.event.inputs.description }}`
+            });
+
+            console.log(`Updated existing PR #${prNumber}`);
+
+      - name: No changes to promote
+        if: steps.diff.outputs.has-changes == 'false'
+        run: |
+          echo "ℹ️ No new changes to promote from development to staging"
+          echo "The staging branch is already up to date with development"
