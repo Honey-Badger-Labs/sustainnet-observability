@@ -1,0 +1,270 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "SustainNet Website - CI/CD Pipeline",
+    "tags": ["sustainnet", "ci-cd", "deployments"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Latest Deployment Status",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "github_workflow_status{workflow=\"Deploy to Production\", repo=\"sustainnet-website\"}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [
+              {
+                "options": {
+                  "failure": {
+                    "text": "FAILED",
+                    "color": "red"
+                  },
+                  "success": {
+                    "text": "SUCCESS",
+                    "color": "green"
+                  },
+                  "in_progress": {
+                    "text": "DEPLOYING",
+                    "color": "orange"
+                  }
+                },
+                "type": "value"
+              }
+            ]
+          }
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "Build Duration (Latest)",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "github_workflow_duration_seconds{workflow=~\"CI|Development CI/CD\"}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "decimals": 0,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "orange",
+                  "value": 300
+                },
+                {
+                  "color": "red",
+                  "value": 600
+                }
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 6,
+          "y": 0
+        }
+      },
+      {
+        "id": 3,
+        "title": "Test Coverage",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "jest_coverage_percentage",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "decimals": 1,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "red",
+                  "value": null
+                },
+                {
+                  "color": "orange",
+                  "value": 70
+                },
+                {
+                  "color": "green",
+                  "value": 85
+                }
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 12,
+          "y": 0
+        }
+      },
+      {
+        "id": 4,
+        "title": "Security Scan Status",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sonar_qube_scan_status",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [
+              {
+                "options": {
+                  "0": {
+                    "text": "PASSED",
+                    "color": "green"
+                  },
+                  "1": {
+                    "text": "ISSUES",
+                    "color": "orange"
+                  },
+                  "2": {
+                    "text": "FAILED",
+                    "color": "red"
+                  }
+                },
+                "type": "value"
+              }
+            ]
+          }
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 18,
+          "y": 0
+        }
+      },
+      {
+        "id": 5,
+        "title": "Deployment Frequency",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum(rate(github_workflow_runs_total{workflow=~\"Deploy.*\", status=\"success\"}[7d])) * 24 * 7",
+            "refId": "A",
+            "legendFormat": "Deployments per week"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 4
+        }
+      },
+      {
+        "id": 6,
+        "title": "Build Success Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "(sum(rate(github_workflow_runs_total{status=\"success\"}[7d])) / sum(rate(github_workflow_runs_total[7d]))) * 100",
+            "refId": "A",
+            "legendFormat": "Success Rate %"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0,
+            "max": 100
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 4
+        }
+      },
+      {
+        "id": 7,
+        "title": "Recent Deployments",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "github_workflow_runs{workflow=~\"Deploy.*\"}",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "displayMode": "auto"
+            }
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 12
+        }
+      },
+      {
+        "id": 8,
+        "title": "Pipeline Stages",
+        "type": "status-history",
+        "targets": [
+          {
+            "expr": "github_workflow_job_status{workflow=\"Development CI/CD\"}",
+            "refId": "A",
+            "legendFormat": "{{job}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 12
+        }
+      }
+    ],
+    "time": {
+      "from": "now-7d",
+      "to": "now"
+    },
+    "timepicker": {},
+    "templating": {
+      "list": []
+    },
+    "annotations": {
+      "list": []
+    },
+    "refresh": "30s",
+    "schemaVersion": 27,
+    "version": 0,
+    "links": []
+  }
+}

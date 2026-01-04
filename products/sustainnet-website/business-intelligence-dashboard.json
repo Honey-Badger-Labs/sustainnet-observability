@@ -1,0 +1,239 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "SustainNet Website - Business Intelligence",
+    "tags": ["sustainnet", "business", "kpi", "metrics"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Monthly Active Users",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(increase(google_analytics_users[30d]))",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "decimals": 0
+          }
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 4,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "Average Session Duration",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "avg(google_analytics_session_duration)",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "decimals": 0
+          }
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 4,
+          "x": 4,
+          "y": 0
+        }
+      },
+      {
+        "id": 3,
+        "title": "Bounce Rate",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "avg(google_analytics_bounce_rate) * 100",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "decimals": 1,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "green",
+                  "value": null
+                },
+                {
+                  "color": "orange",
+                  "value": 50
+                },
+                {
+                  "color": "red",
+                  "value": 70
+                }
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 4,
+          "x": 8,
+          "y": 0
+        }
+      },
+      {
+        "id": 4,
+        "title": "Conversion Rate",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "(sum(rate(google_analytics_goal_completions[7d])) / sum(rate(google_analytics_users[7d]))) * 100",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "decimals": 2
+          }
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 4,
+          "x": 12,
+          "y": 0
+        }
+      },
+      {
+        "id": 5,
+        "title": "Top Traffic Sources",
+        "type": "piechart",
+        "targets": [
+          {
+            "expr": "topk(5, sum(rate(google_analytics_users[7d])) by (source))",
+            "refId": "A",
+            "legendFormat": "{{source}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 0,
+          "y": 4
+        }
+      },
+      {
+        "id": 6,
+        "title": "User Growth Trend",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum(increase(google_analytics_users[1d]))",
+            "refId": "A",
+            "legendFormat": "Daily Users"
+          },
+          {
+            "expr": "sum(increase(google_analytics_new_users[1d]))",
+            "refId": "B",
+            "legendFormat": "New Users"
+          },
+          {
+            "expr": "sum(increase(google_analytics_returning_users[1d]))",
+            "refId": "C",
+            "legendFormat": "Returning Users"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 8,
+          "y": 4
+        }
+      },
+      {
+        "id": 7,
+        "title": "Content Engagement",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "topk(10, sum(rate(google_analytics_pageviews[7d])) by (page_path))",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "displayMode": "auto"
+            }
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 0,
+          "y": 12
+        }
+      },
+      {
+        "id": 8,
+        "title": "Device & Browser Usage",
+        "type": "barchart",
+        "targets": [
+          {
+            "expr": "sum(rate(google_analytics_users[7d])) by (device_category)",
+            "refId": "A",
+            "legendFormat": "{{device_category}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 8,
+          "y": 12
+        }
+      },
+      {
+        "id": 9,
+        "title": "Geographic Performance",
+        "type": "worldmap",
+        "targets": [
+          {
+            "expr": "sum(rate(google_analytics_users[7d])) by (country)",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 16,
+          "y": 12
+        }
+      }
+    ],
+    "time": {
+      "from": "now-30d",
+      "to": "now"
+    },
+    "timepicker": {},
+    "templating": {
+      "list": []
+    },
+    "annotations": {
+      "list": []
+    },
+    "refresh": "1h",
+    "schemaVersion": 27,
+    "version": 0,
+    "links": []
+  }
+}

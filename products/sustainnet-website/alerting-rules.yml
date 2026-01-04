@@ -1,0 +1,92 @@
+# Grafana Alerting Rules for SustainNet Website
+# These alerts translate technical issues into business impacts
+
+groups:
+  - name: sustainnet-website.alerts
+    rules:
+      # Business Impact Alerts
+      - alert: WebsiteDown
+        expr: up{job="sustainnet-website"} == 0
+        for: 5m
+        labels:
+          severity: critical
+          impact: business
+        annotations:
+          summary: "SustainNet website is DOWN"
+          description: "The website has been unreachable for 5+ minutes. Users cannot access the site."
+          business_impact: "Complete loss of online presence and user engagement"
+          action_required: "Immediate investigation required - check AWS services"
+
+      - alert: HighErrorRate
+        expr: sum(rate(cloudfront_5xx_error_rate[5m])) > 0.05
+        for: 3m
+        labels:
+          severity: warning
+          impact: business
+        annotations:
+          summary: "High error rate detected"
+          description: "Server error rate is {{ $value | printf \"%.2f%%\" }} - above 5% threshold"
+          business_impact: "Users experiencing technical difficulties accessing content"
+          action_required: "Monitor error logs and investigate root cause"
+
+      - alert: SlowResponseTime
+        expr: cloudfront_origin_latency_average > 3000
+        for: 5m
+        labels:
+          severity: warning
+          impact: user-experience
+        annotations:
+          summary: "Slow website response time"
+          description: "Average response time is {{ $value | printf \"%.0f\" }}ms - above 3 second threshold"
+          business_impact: "Poor user experience may lead to higher bounce rates"
+          action_required: "Check CloudFront and S3 performance, consider cache optimization"
+
+      # Technical Alerts
+      - alert: DeploymentFailed
+        expr: github_workflow_status{workflow=~"Deploy.*"} == 1
+        for: 1m
+        labels:
+          severity: error
+          impact: technical
+        annotations:
+          summary: "Deployment failed"
+          description: "The {{ $labels.workflow }} workflow failed to complete"
+          business_impact: "New features or fixes not deployed to users"
+          action_required: "Check GitHub Actions logs for failure details"
+
+      - alert: LowCacheHitRate
+        expr: (sum(rate(cloudfront_requests_total{status="Hit"}[5m])) / sum(rate(cloudfront_requests_total[5m]))) * 100 < 70
+        for: 10m
+        labels:
+          severity: info
+          impact: performance
+        annotations:
+          summary: "Low cache hit rate"
+          description: "Cache hit rate is {{ $value | printf \"%.1f%%\" }} - below 70% threshold"
+          business_impact: "Increased costs and slower page loads for users"
+          action_required: "Review cache headers and CloudFront configuration"
+
+      - alert: HighDataTransfer
+        expr: sum(rate(cloudfront_bytes_downloaded[1h])) / 1024 / 1024 / 1024 > 100
+        for: 1h
+        labels:
+          severity: info
+          impact: cost
+        annotations:
+          summary: "High data transfer usage"
+          description: "Data transfer exceeded 100GB in the last hour"
+          business_impact: "Increased AWS costs for bandwidth usage"
+          action_required: "Monitor traffic patterns and optimize content delivery"
+
+      # Success Confirmations
+      - alert: DeploymentSuccessful
+        expr: github_workflow_status{workflow=~"Deploy.*"} == 0
+        for: 1m
+        labels:
+          severity: info
+          impact: positive
+        annotations:
+          summary: "Deployment completed successfully"
+          description: "{{ $labels.workflow }} deployed successfully to {{ $labels.branch }}"
+          business_impact: "New features and improvements are now live"
+          action_required: "Verify website functionality and monitor user feedback"

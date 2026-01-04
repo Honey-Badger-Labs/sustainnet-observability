@@ -1,0 +1,260 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "SustainNet Website - Infrastructure Monitoring",
+    "tags": ["sustainnet", "infrastructure", "technical"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "CloudFront Health",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "cloudfront_5xx_error_rate < 0.1",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [
+              {
+                "options": {
+                  "0": {
+                    "text": "ISSUES",
+                    "color": "red"
+                  },
+                  "1": {
+                    "text": "HEALTHY",
+                    "color": "green"
+                  }
+                },
+                "type": "value"
+              }
+            ]
+          }
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 4,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "Cache Hit Rate",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "(sum(rate(cloudfront_requests_total{status=\"Hit\"}[5m])) / sum(rate(cloudfront_requests_total[5m]))) * 100",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "decimals": 1,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {
+                  "color": "red",
+                  "value": null
+                },
+                {
+                  "color": "orange",
+                  "value": 70
+                },
+                {
+                  "color": "green",
+                  "value": 85
+                }
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 4,
+          "x": 4,
+          "y": 0
+        }
+      },
+      {
+        "id": 3,
+        "title": "Data Transfer (GB)",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(rate(cloudfront_bytes_downloaded[1h])) / 1024 / 1024 / 1024",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "GB",
+            "decimals": 2
+          }
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 4,
+          "x": 8,
+          "y": 0
+        }
+      },
+      {
+        "id": 4,
+        "title": "S3 Storage Used",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "s3_bucket_size_bytes / 1024 / 1024 / 1024",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "GB",
+            "decimals": 2
+          }
+        },
+        "gridPos": {
+          "h": 4,
+          "w": 4,
+          "x": 12,
+          "y": 0
+        }
+      },
+      {
+        "id": 5,
+        "title": "Requests per Minute",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum(rate(cloudfront_requests_total[5m])) * 60",
+            "refId": "A",
+            "legendFormat": "Total Requests"
+          },
+          {
+            "expr": "sum(rate(cloudfront_4xx_error_rate[5m])) * 60",
+            "refId": "B",
+            "legendFormat": "4xx Errors"
+          },
+          {
+            "expr": "sum(rate(cloudfront_5xx_error_rate[5m])) * 60",
+            "refId": "C",
+            "legendFormat": "5xx Errors"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 4
+        }
+      },
+      {
+        "id": 6,
+        "title": "Response Time Trends",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "cloudfront_origin_latency_average",
+            "refId": "A",
+            "legendFormat": "Origin Latency"
+          },
+          {
+            "expr": "cloudfront_total_latency_average",
+            "refId": "B",
+            "legendFormat": "Total Latency"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ms"
+          }
+        },
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 4
+        }
+      },
+      {
+        "id": 7,
+        "title": "Error Breakdown",
+        "type": "piechart",
+        "targets": [
+          {
+            "expr": "sum(rate(cloudfront_4xx_error_rate[1h])) by (status)",
+            "refId": "A",
+            "legendFormat": "{{status}}"
+          },
+          {
+            "expr": "sum(rate(cloudfront_5xx_error_rate[1h])) by (status)",
+            "refId": "B",
+            "legendFormat": "{{status}}"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 0,
+          "y": 12
+        }
+      },
+      {
+        "id": 8,
+        "title": "Top Error URIs",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "topk(10, sum(rate(cloudfront_requests_total{status=~\"4..|5..\"}[1h])) by (uri))",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 8,
+          "y": 12
+        }
+      },
+      {
+        "id": 9,
+        "title": "CloudFront Edge Locations",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "sum(rate(cloudfront_requests_by_edge_location[1h])) by (edge_location)",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 16,
+          "y": 12
+        }
+      }
+    ],
+    "time": {
+      "from": "now-24h",
+      "to": "now"
+    },
+    "timepicker": {},
+    "templating": {
+      "list": []
+    },
+    "annotations": {
+      "list": []
+    },
+    "refresh": "1m",
+    "schemaVersion": 27,
+    "version": 0,
+    "links": []
+  }
+}

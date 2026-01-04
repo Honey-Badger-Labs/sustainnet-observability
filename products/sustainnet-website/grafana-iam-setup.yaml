@@ -1,0 +1,72 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'IAM Role and Policy for Grafana CloudWatch Integration - SustainNet Website'
+
+Parameters:
+  GrafanaAccountId:
+    Type: String
+    Description: 'Grafana Cloud Account ID (found in Grafana Cloud settings)'
+    Default: ''
+
+Resources:
+  GrafanaCloudWatchPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: grafana-cloudwatch-policy
+      Description: Policy for Grafana to access CloudWatch metrics for SustainNet website monitoring
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - cloudwatch:GetMetricData
+              - cloudwatch:GetMetricStatistics
+              - cloudwatch:ListMetrics
+              - cloudwatch:DescribeAlarms
+              - cloudfront:GetDistribution
+              - cloudfront:ListDistributions
+              - cloudfront:GetDistributionConfig
+              - s3:GetBucketMetricsConfiguration
+              - s3:ListBucket
+              - s3:GetBucketLocation
+              - s3:GetBucketTagging
+              - ec2:DescribeInstances
+              - ec2:DescribeRegions
+            Resource: '*'
+
+  GrafanaCloudWatchRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: grafana-cloudwatch-integration
+      Description: Role for Grafana Cloud to access AWS CloudWatch metrics
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::${GrafanaAccountId}:root'
+            Action: sts:AssumeRole
+            Condition:
+              StringEquals:
+                aws:PrincipalArn: !Sub 'arn:aws:iam::${GrafanaAccountId}:role/grafana-cloudwatch-integration'
+      ManagedPolicyArns:
+        - !Ref GrafanaCloudWatchPolicy
+      MaxSessionDuration: 3600
+
+Outputs:
+  RoleArn:
+    Description: ARN of the IAM role for Grafana CloudWatch integration
+    Value: !GetAtt GrafanaCloudWatchRole.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-RoleArn'
+
+  RoleName:
+    Description: Name of the IAM role
+    Value: !Ref GrafanaCloudWatchRole
+    Export:
+      Name: !Sub '${AWS::StackName}-RoleName'
+
+  PolicyArn:
+    Description: ARN of the IAM policy
+    Value: !Ref GrafanaCloudWatchPolicy
+    Export:
+      Name: !Sub '${AWS::StackName}-PolicyArn'
