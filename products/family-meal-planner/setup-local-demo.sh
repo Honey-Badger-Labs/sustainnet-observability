@@ -97,7 +97,7 @@ services:
     image: grafana/grafana:latest
     container_name: fmp-grafana
     ports:
-      - "3000:3000"
+      - "3002:3000"
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_USERS_ALLOW_SIGN_UP=false
@@ -133,7 +133,7 @@ services:
 networks:
   fmp-observability:
     external: true
-    name: local_dev_default  # Connect to existing local dev network
+    name: sustainnet-network  # Connect to existing local dev network
 
 volumes:
   prometheus_data:
