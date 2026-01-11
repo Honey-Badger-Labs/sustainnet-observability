@@ -138,6 +138,81 @@
         .badge.review { background: rgba(163, 113, 247, 0.2); color: var(--accent-purple); }
         .badge.critical { background: rgba(248, 81, 73, 0.2); color: var(--accent-red); }
         
+        /* Score color coding - <65 red, 65-79 orange, >=80 green */
+        .score-critical { background: rgba(248, 81, 73, 0.2); color: var(--accent-red); font-weight: 600; }
+        .score-warning { background: rgba(210, 153, 34, 0.2); color: var(--accent-yellow); font-weight: 600; }
+        .score-healthy { background: rgba(63, 185, 80, 0.2); color: var(--accent-green); font-weight: 600; }
+        
+        /* Repo filter dropdown */
+        .filter-bar {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: var(--bg-card);
+            border-radius: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-bar label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .filter-bar select {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+        
+        .filter-bar select:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+        
+        /* Score meter */
+        .score-meter {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-primary);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        
+        .score-meter-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        .score-meter-fill.critical { background: var(--accent-red); }
+        .score-meter-fill.warning { background: var(--accent-yellow); }
+        .score-meter-fill.healthy { background: var(--accent-green); }
+        
+        /* Recommendation cards */
+        .recommendation {
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+        }
+        
+        .recommendation.critical {
+            background: rgba(248, 81, 73, 0.15);
+            border-left: 3px solid var(--accent-red);
+        }
+        
+        .recommendation.warning {
+            background: rgba(210, 153, 34, 0.15);
+            border-left: 3px solid var(--accent-yellow);
+        }
+        
         /* Section styling */
         .section {
             background: var(--bg-secondary);
@@ -250,6 +325,7 @@
         <!-- Navigation Tabs -->
         <div class="tabs">
             <button class="tab active" onclick="showTab('overview')">📊 Overview</button>
+            <button class="tab" onclick="showTab('health')">🏥 Repo Health</button>
             <button class="tab" onclick="showTab('agents')">🤖 CDP Agents</button>
             <button class="tab" onclick="showTab('decisions')">📋 Decisions</button>
             <button class="tab" onclick="showTab('flywheel')">🔄 Flywheel</button>
@@ -307,6 +383,42 @@
                             <td><span class="badge active">Production</span></td>
                         </tr>
                         <tr>
+                            <td><a class="link" href="https://github.com/Honey-Badger-Labs/Family-Meal-Planner-App">Family-Meal-Planner-App</a></td>
+                            <td>Mobile App Frontend</td>
+                            <td>development</td>
+                            <td><span class="badge active">Production</span></td>
+                        </tr>
+                        <tr>
+                            <td><a class="link" href="https://github.com/Honey-Badger-Labs/Family-Meal-Planner-IaC">Family-Meal-Planner-IaC</a></td>
+                            <td>Infrastructure as Code</td>
+                            <td>development</td>
+                            <td><span class="badge active">Active</span></td>
+                        </tr>
+                        <tr>
+                            <td><a class="link" href="https://github.com/Honey-Badger-Labs/Family-Meal-Planner-Types">Family-Meal-Planner-Types</a></td>
+                            <td>Shared TypeScript Types</td>
+                            <td>development</td>
+                            <td><span class="badge active">Published</span></td>
+                        </tr>
+                        <tr>
+                            <td><a class="link" href="https://github.com/Honey-Badger-Labs/GH1MA">GH1MA</a></td>
+                            <td>Experimental Project</td>
+                            <td>development</td>
+                            <td><span class="badge proposed">In Dev</span></td>
+                        </tr>
+                        <tr>
+                            <td><a class="link" href="https://github.com/Honey-Badger-Labs/Hello-World">Hello-World</a></td>
+                            <td>CDP Agents & Methodology</td>
+                            <td>development</td>
+                            <td><span class="badge active">Active</span></td>
+                        </tr>
+                        <tr>
+                            <td><a class="link" href="https://github.com/Honey-Badger-Labs/Hello-World-Flow-Test">Hello-World-Flow-Test</a></td>
+                            <td>Flow Testing</td>
+                            <td>Development</td>
+                            <td><span class="badge proposed">Testing</span></td>
+                        </tr>
+                        <tr>
                             <td><a class="link" href="https://github.com/Honey-Badger-Labs/sustainnet-monorepo">sustainnet-monorepo</a></td>
                             <td>Main Mobile App</td>
                             <td>development</td>
@@ -314,7 +426,7 @@
                         </tr>
                         <tr>
                             <td><a class="link" href="https://github.com/Honey-Badger-Labs/sustainnet-website">sustainnet-website</a></td>
-                            <td>Marketing Website</td>
+                            <td>Marketing Website + Cloudflare</td>
                             <td>development</td>
                             <td><span class="badge active">MVP1</span></td>
                         </tr>
@@ -346,6 +458,257 @@
                             <li>📋 SustainNet MLP development</li>
                             <li>📋 Observability dashboards</li>
                         </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- REPO HEALTH TAB -->
+        <div id="health" class="tab-content">
+            <div class="filter-bar">
+                <label for="repo-filter">📁 Repository:</label>
+                <select id="repo-filter" onchange="filterByRepo()">
+                    <option value="all">🏢 All Repositories (Org Level)</option>
+                    <option value="family-meal-planner">Family-Meal-Planner</option>
+                    <option value="family-meal-planner-app">Family-Meal-Planner-App</option>
+                    <option value="family-meal-planner-iac">Family-Meal-Planner-IaC</option>
+                    <option value="family-meal-planner-types">Family-Meal-Planner-Types</option>
+                    <option value="gh1ma">GH1MA</option>
+                    <option value="hello-world">Hello-World</option>
+                    <option value="hello-world-flow-test">Hello-World-Flow-Test</option>
+                    <option value="sustainnet-monorepo">sustainnet-monorepo</option>
+                    <option value="sustainnet-observability">sustainnet-observability</option>
+                    <option value="sustainnet-vision">sustainnet-vision</option>
+                    <option value="sustainnet-website">sustainnet-website</option>
+                </select>
+                <span style="color: var(--text-secondary); font-size: 0.75rem;">
+                    🔴 &lt;65% Critical | 🟠 65-79% Warning | 🟢 ≥80% Healthy
+                </span>
+            </div>
+            
+            <!-- Organization Level Summary -->
+            <div id="org-summary" class="section">
+                <h2>🏢 Organization Health Summary</h2>
+                <div class="grid" style="grid-template-columns: repeat(5, 1fr);">
+                    <div class="card">
+                        <h3>Org Average</h3>
+                        <div class="metric yellow" id="org-avg-score">58</div>
+                        <div class="score-meter"><div class="score-meter-fill warning" style="width: 58%;"></div></div>
+                        <div class="metric-label">Across all repos</div>
+                    </div>
+                    <div class="card">
+                        <h3>Critical</h3>
+                        <div class="metric red" id="critical-count">4</div>
+                        <div class="metric-label">Score &lt; 65%</div>
+                    </div>
+                    <div class="card">
+                        <h3>Warning</h3>
+                        <div class="metric yellow" id="warning-count">5</div>
+                        <div class="metric-label">Score 65-79%</div>
+                    </div>
+                    <div class="card">
+                        <h3>Healthy</h3>
+                        <div class="metric green" id="healthy-count">2</div>
+                        <div class="metric-label">Score ≥ 80%</div>
+                    </div>
+                    <div class="card">
+                        <h3>Total Repos</h3>
+                        <div class="metric blue">11</div>
+                        <div class="metric-label">Being monitored</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Repository Scores Table -->
+            <div class="section">
+                <h2>📊 Repository Scores by Agent</h2>
+                <div style="overflow-x: auto;">
+                <table id="repo-scores-table">
+                    <thead>
+                        <tr>
+                            <th>Repository</th>
+                            <th>🔒 Sec</th>
+                            <th>🧪 Test</th>
+                            <th>📝 Docs</th>
+                            <th>📦 Deps</th>
+                            <th>👋 Onb</th>
+                            <th>💰 Fin</th>
+                            <th>🔧 SRE</th>
+                            <th>Avg</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr data-repo="family-meal-planner">
+                            <td><a class="link" href="https://github.com/Honey-Badger-Labs/Family-Meal-Planner">Family-Meal-Planner</a></td>
+                            <td><span class="badge score-critical">56</span></td>
+                            <td><span class="badge score-critical">26</span></td>
+                            <td><span class="badge score-warning">74</span></td>
+                            <td><span class="badge score-warning">68</span></td>
+                            <td><span class="badge score-healthy">88</span></td>
+                            <td><span class="badge score-warning">71</span></td>
+                            <td><span class="badge score-warning">75</span></td>
+                            <td><span class="badge score-warning">65</span></td>
+                            <td>🟠</td>
+                        </tr>
+                        <tr data-repo="family-meal-planner-app">
+                            <td><a class="link" href="https://github.com/Honey-Badger-Labs/Family-Meal-Planner-App">Family-Meal-Planner-App</a></td>
+                            <td><span class="badge score-critical">52</span></td>
+                            <td><span class="badge score-critical">35</span></td>
+                            <td><span class="badge score-warning">70</span></td>
+                            <td><span class="badge score-warning">72</span></td>
+                            <td><span class="badge score-healthy">85</span></td>
+                            <td><span class="badge" style="color: var(--text-secondary);">—</span></td>
+                            <td><span class="badge" style="color: var(--text-secondary);">—</span></td>
+                            <td><span class="badge score-critical">63</span></td>
+                            <td>🔴</td>
+                        </tr>
+                        <tr data-repo="family-meal-planner-iac">
+                            <td><a class="link" href="https://github.com/Honey-Badger-Labs/Family-Meal-Planner-IaC">Family-Meal-Planner-IaC</a></td>
+                            <td><span class="badge score-warning">72</span></td>
+                            <td><span class="badge" style="color: var(--text-secondary);">—</span></td>
+                            <td><span class="badge score-healthy">80</span></td>
+                            <td><span class="badge score-healthy">85</span></td>
+                            <td><span class="badge score-healthy">90</span></td>
+                            <td><span class="badge score-healthy">82</span></td>
+                            <td><span class="badge score-healthy">88</span></td>
+                            <td><span class="badge score-healthy">83</span></td>
+                            <td>🟢</td>
+                        </tr>
+                        <tr data-repo="family-meal-planner-types">
+                            <td><a class="link" href="https://github.com/Honey-Badger-Labs/Family-Meal-Planner-Types">Family-Meal-Planner-Types</a></td>
+                            <td><span class="badge score-healthy">85</span></td>
+                            <td><span class="badge score-warning">65</span></td>
+                            <td><span class="badge score-healthy">88</span></td>
+                            <td><span class="badge score-healthy">92</span></td>
+                            <td><span class="badge score-healthy">95</span></td>
+                            <td><span class="badge" style="color: var(--text-secondary);">—</span></td>
+                            <td><span class="badge" style="color: var(--text-secondary);">—</span></td>
+                            <td><span class="badge score-healthy">85</span></td>
+                            <td>🟢</td>
+                        </tr>
+                        <tr data-repo="gh1ma">
+                            <td><a class="link" href="https://github.com/Honey-Badger-Labs/GH1MA">GH1MA</a></td>
+                            <td><span class="badge score-critical">48</span></td>
+                            <td><span class="badge score-critical">30</span></td>
+                            <td><span class="badge score-warning">65</span></td>
+                            <td><span class="badge score-warning">70</span></td>
+                            <td><span class="badge score-warning">72</span></td>
+                            <td><span class="badge" style="color: var(--text-secondary);">—</span></td>
+                            <td><span class="badge" style="color: var(--text-secondary);">—</span></td>
+                            <td><span class="badge score-critical">57</span></td>
+                            <td>🔴</td>
+                        </tr>
+                        <tr data-repo="hello-world">
+                            <td><a class="link" href="https://github.com/Honey-Badger-Labs/Hello-World">Hello-World</a></td>
+                            <td><span class="badge score-critical">56</span></td>
+                            <td><span class="badge score-critical">26</span></td>
+                            <td><span class="badge score-warning">74</span></td>
+                            <td><span class="badge score-warning">68</span></td>
+                            <td><span class="badge score-healthy">88</span></td>
+                            <td><span class="badge score-warning">71</span></td>
+                            <td><span class="badge score-warning">75</span></td>
+                            <td><span class="badge score-warning">65</span></td>
+                            <td>🟠</td>
+                        </tr>
+                        <tr data-repo="hello-world-flow-test">
+                            <td><a class="link" href="https://github.com/Honey-Badger-Labs/Hello-World-Flow-Test">Hello-World-Flow-Test</a></td>
+                            <td><span class="badge score-critical">45</span></td>
+                            <td><span class="badge score-critical">20</span></td>
+                            <td><span class="badge score-critical">55</span></td>
+                            <td><span class="badge score-warning">65</span></td>
+                            <td><span class="badge score-warning">70</span></td>
+                            <td><span class="badge" style="color: var(--text-secondary);">—</span></td>
+                            <td><span class="badge" style="color: var(--text-secondary);">—</span></td>
+                            <td><span class="badge score-critical">51</span></td>
+                            <td>🔴</td>
+                        </tr>
+                        <tr data-repo="sustainnet-monorepo">
+                            <td><a class="link" href="https://github.com/Honey-Badger-Labs/sustainnet-monorepo">sustainnet-monorepo</a></td>
+                            <td><span class="badge score-warning">60</span></td>
+                            <td><span class="badge score-critical">20</span></td>
+                            <td><span class="badge score-warning">65</span></td>
+                            <td><span class="badge score-warning">75</span></td>
+                            <td><span class="badge score-warning">78</span></td>
+                            <td><span class="badge" style="color: var(--text-secondary);">—</span></td>
+                            <td><span class="badge" style="color: var(--text-secondary);">—</span></td>
+                            <td><span class="badge score-critical">60</span></td>
+                            <td>🔴</td>
+                        </tr>
+                        <tr data-repo="sustainnet-observability">
+                            <td><a class="link" href="https://github.com/Honey-Badger-Labs/sustainnet-observability">sustainnet-observability</a></td>
+                            <td><span class="badge score-healthy">80</span></td>
+                            <td><span class="badge" style="color: var(--text-secondary);">—</span></td>
+                            <td><span class="badge score-healthy">85</span></td>
+                            <td><span class="badge score-healthy">90</span></td>
+                            <td><span class="badge score-healthy">92</span></td>
+                            <td><span class="badge score-warning">75</span></td>
+                            <td><span class="badge score-healthy">82</span></td>
+                            <td><span class="badge score-healthy">84</span></td>
+                            <td>🟢</td>
+                        </tr>
+                        <tr data-repo="sustainnet-vision">
+                            <td><a class="link" href="https://github.com/Honey-Badger-Labs/sustainnet-vision">sustainnet-vision</a></td>
+                            <td><span class="badge score-warning">75</span></td>
+                            <td><span class="badge" style="color: var(--text-secondary);">—</span></td>
+                            <td><span class="badge score-healthy">95</span></td>
+                            <td><span class="badge" style="color: var(--text-secondary);">—</span></td>
+                            <td><span class="badge score-healthy">98</span></td>
+                            <td><span class="badge" style="color: var(--text-secondary);">—</span></td>
+                            <td><span class="badge" style="color: var(--text-secondary);">—</span></td>
+                            <td><span class="badge score-healthy">89</span></td>
+                            <td>🟢</td>
+                        </tr>
+                        <tr data-repo="sustainnet-website">
+                            <td><a class="link" href="https://github.com/Honey-Badger-Labs/sustainnet-website">sustainnet-website</a></td>
+                            <td><span class="badge score-warning">68</span></td>
+                            <td><span class="badge score-critical">45</span></td>
+                            <td><span class="badge score-healthy">82</span></td>
+                            <td><span class="badge score-warning">78</span></td>
+                            <td><span class="badge score-healthy">90</span></td>
+                            <td><span class="badge" style="color: var(--text-secondary);">—</span></td>
+                            <td><span class="badge" style="color: var(--text-secondary);">—</span></td>
+                            <td><span class="badge score-warning">73</span></td>
+                            <td>🟠</td>
+                        </tr>
+                    </tbody>
+                </table>
+                </div>
+            </div>
+            
+            <!-- Recommendations Section -->
+            <div class="section">
+                <h2>🚨 Critical Recommendations (Action Required)</h2>
+                <div id="critical-recommendations">
+                    <div class="recommendation critical">
+                        <strong>🧪 Testing Coverage Critical</strong> - family-meal-planner (26%)
+                        <br><span style="color: var(--text-secondary);">Add unit tests for controllers. Target: 60% minimum coverage.</span>
+                    </div>
+                    <div class="recommendation critical">
+                        <strong>🧪 Testing Coverage Critical</strong> - sustainnet-monorepo (20%)
+                        <br><span style="color: var(--text-secondary);">Pre-MLP but tests needed before launch. Set up Jest + React Testing Library.</span>
+                    </div>
+                    <div class="recommendation critical">
+                        <strong>🔒 Security Gaps</strong> - family-meal-planner-app (52%)
+                        <br><span style="color: var(--text-secondary);">No SAST scanning in CI. Add CodeQL or Snyk integration.</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>⚠️ Warning Recommendations (Improve Soon)</h2>
+                <div id="warning-recommendations">
+                    <div class="recommendation warning">
+                        <strong>📦 Dependencies</strong> - family-meal-planner (68%)
+                        <br><span style="color: var(--text-secondary);">5 outdated packages with patch updates available. Run npm update.</span>
+                    </div>
+                    <div class="recommendation warning">
+                        <strong>📝 Documentation</strong> - sustainnet-monorepo (65%)
+                        <br><span style="color: var(--text-secondary);">Missing API documentation and contributing guide needs update.</span>
+                    </div>
+                    <div class="recommendation warning">
+                        <strong>💰 FinOps</strong> - family-meal-planner (71%)
+                        <br><span style="color: var(--text-secondary);">Budget at 80% with potential $327/mo savings from idle resources.</span>
                     </div>
                 </div>
             </div>
@@ -991,6 +1354,68 @@
             document.getElementById(tabId).classList.add('active');
             event.target.classList.add('active');
         }
+        
+        // Repository filter function
+        function filterByRepo() {
+            const selectedRepo = document.getElementById('repo-filter').value;
+            const rows = document.querySelectorAll('#repo-scores-table tbody tr');
+            const orgSummary = document.getElementById('org-summary');
+            
+            if (selectedRepo === 'all') {
+                // Show all rows and org summary
+                rows.forEach(row => row.style.display = '');
+                orgSummary.style.display = 'block';
+                updateOrgSummary();
+            } else {
+                // Filter to single repo
+                orgSummary.style.display = 'none';
+                rows.forEach(row => {
+                    if (row.dataset.repo === selectedRepo) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+        }
+        
+        // Calculate and update org summary
+        function updateOrgSummary() {
+            const repoScores = {
+                'family-meal-planner': 65,
+                'family-meal-planner-app': 63,
+                'sustainnet-website': 73,
+                'sustainnet-monorepo': 60,
+                'sustainnet-observability': 84
+            };
+            
+            let critical = 0, warning = 0, healthy = 0;
+            let total = 0, count = 0;
+            
+            for (const [repo, score] of Object.entries(repoScores)) {
+                total += score;
+                count++;
+                if (score < 65) critical++;
+                else if (score < 80) warning++;
+                else healthy++;
+            }
+            
+            const avg = Math.round(total / count);
+            document.getElementById('org-avg-score').textContent = avg;
+            document.getElementById('critical-count').textContent = critical;
+            document.getElementById('warning-count').textContent = warning;
+            document.getElementById('healthy-count').textContent = healthy;
+        }
+        
+        // Helper to get score class
+        function getScoreClass(score) {
+            if (score < 65) return 'critical';
+            if (score < 80) return 'warning';
+            return 'healthy';
+        }
+        
+        // Initialize
+        updateOrgSummary();
     </script>
 </body>
 </html>
