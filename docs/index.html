@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SustainNet Collaboration OS</title>
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-card: #21262d;
+            --text-primary: #f0f6fc;
+            --text-secondary: #8b949e;
+            --accent-green: #3fb950;
+            --accent-blue: #58a6ff;
+            --accent-yellow: #d29922;
+            --accent-red: #f85149;
+            --accent-purple: #a371f7;
+            --border: #30363d;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 1.5rem; }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        h1 {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .logo { font-size: 1.8rem; }
+        .subtitle { color: var(--text-secondary); font-size: 0.875rem; font-weight: normal; }
+        
+        .timestamp {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            text-align: right;
+        }
+        
+        /* Navigation Tabs */
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+            overflow-x: auto;
+        }
+        
+        .tab {
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 6px 6px 0 0;
+            font-size: 0.875rem;
+            white-space: nowrap;
+        }
+        
+        .tab:hover { background: var(--bg-card); color: var(--text-primary); }
+        .tab.active { background: var(--bg-card); color: var(--accent-blue); border-bottom: 2px solid var(--accent-blue); }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        /* Grid layouts */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .grid-2 { grid-template-columns: repeat(2, 1fr); }
+        .grid-3 { grid-template-columns: repeat(3, 1fr); }
+        
+        @media (max-width: 768px) {
+            .grid-2, .grid-3 { grid-template-columns: 1fr; }
+        }
+        
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.25rem;
+        }
+        
+        .card h2, .card h3 {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.75rem;
+        }
+        
+        .metric {
+            font-size: 2rem;
+            font-weight: 600;
+        }
+        
+        .metric.green { color: var(--accent-green); }
+        .metric.blue { color: var(--accent-blue); }
+        .metric.yellow { color: var(--accent-yellow); }
+        .metric.red { color: var(--accent-red); }
+        .metric.purple { color: var(--accent-purple); }
+        
+        .metric-label {
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+        }
+        
+        /* Status badges */
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+        
+        .badge.active { background: rgba(63, 185, 80, 0.2); color: var(--accent-green); }
+        .badge.proposed { background: rgba(210, 153, 34, 0.2); color: var(--accent-yellow); }
+        .badge.superseded { background: rgba(139, 148, 158, 0.2); color: var(--text-secondary); text-decoration: line-through; }
+        .badge.review { background: rgba(163, 113, 247, 0.2); color: var(--accent-purple); }
+        .badge.critical { background: rgba(248, 81, 73, 0.2); color: var(--accent-red); }
+        
+        /* Section styling */
+        .section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .section h2 {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+        th, td { text-align: left; padding: 0.6rem; border-bottom: 1px solid var(--border); }
+        th { color: var(--text-secondary); font-weight: 500; font-size: 0.7rem; text-transform: uppercase; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background: rgba(88, 166, 255, 0.05); }
+        
+        .link { color: var(--accent-blue); text-decoration: none; }
+        .link:hover { text-decoration: underline; }
+        
+        /* Flywheel visualization */
+        .flywheel {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 1.5rem;
+            position: relative;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .flywheel-stage {
+            text-align: center;
+            padding: 1rem;
+            border-radius: 50%;
+            width: 90px;
+            height: 90px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid var(--border);
+            position: relative;
+        }
+        
+        .flywheel-stage.active { border-color: var(--accent-blue); background: rgba(88, 166, 255, 0.1); }
+        .flywheel-stage .icon { font-size: 1.5rem; }
+        .flywheel-stage .label { font-size: 0.65rem; color: var(--text-secondary); margin-top: 0.25rem; }
+        
+        .flywheel-arrow {
+            color: var(--accent-blue);
+            font-size: 1.2rem;
+        }
+        
+        @media (max-width: 600px) {
+            .flywheel-arrow { display: none; }
+            .flywheel-stage { width: 70px; height: 70px; }
+        }
+        
+        /* Retro items */
+        .retro-column { 
+            min-height: 150px;
+        }
+        
+        .retro-item {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.8rem;
+        }
+        
+        .retro-item.positive { border-left: 3px solid var(--accent-green); }
+        .retro-item.negative { border-left: 3px solid var(--accent-red); }
+        .retro-item.action { border-left: 3px solid var(--accent-blue); }
+        
+        /* Footer */
+        footer {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+        
+        footer a { color: var(--accent-blue); text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div>
+                <h1><span class="logo">🌍</span> SustainNet Collaboration OS</h1>
+                <span class="subtitle">Human + AI Partnership Dashboard</span>
+            </div>
+            <div class="timestamp">
+                <div>Last updated: <span id="last-updated">-</span></div>
+                <div>🦡 Honey Badger Labs</div>
+            </div>
+        </header>
+        
+        <!-- Navigation Tabs -->
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('overview')">📊 Overview</button>
+            <button class="tab" onclick="showTab('agents')">🤖 CDP Agents</button>
+            <button class="tab" onclick="showTab('decisions')">📋 Decisions</button>
+            <button class="tab" onclick="showTab('flywheel')">🔄 Flywheel</button>
+            <button class="tab" onclick="showTab('retro')">💭 Retrospective</button>
+            <button class="tab" onclick="showTab('sessions')">💬 Sessions</button>
+        </div>
+        
+        <!-- OVERVIEW TAB -->
+        <div id="overview" class="tab-content active">
+            <div class="grid">
+                <div class="card">
+                    <h2>Active Decisions</h2>
+                    <div class="metric blue">14</div>
+                    <div class="metric-label">Governing our work</div>
+                </div>
+                <div class="card">
+                    <h2>Pending Review</h2>
+                    <div class="metric yellow">2</div>
+                    <div class="metric-label">Need attention</div>
+                </div>
+                <div class="card">
+                    <h2>Workflow Runs Saved</h2>
+                    <div class="metric green">~650</div>
+                    <div class="metric-label">Per month (cost reduction)</div>
+                </div>
+                <div class="card">
+                    <h2>Branch Strategy</h2>
+                    <div class="metric blue">2</div>
+                    <div class="metric-label">dev → main (lean flow)</div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>📦 Repository Health</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Repository</th>
+                            <th>Purpose</th>
+                            <th>Branch</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><a class="link" href="https://github.com/Honey-Badger-Labs/sustainnet-vision">sustainnet-vision</a></td>
+                            <td>Strategic Command Center</td>
+                            <td>development</td>
+                            <td><span class="badge active">Active</span></td>
+                        </tr>
+                        <tr>
+                            <td><a class="link" href="https://github.com/Honey-Badger-Labs/Family-Meal-Planner">Family-Meal-Planner</a></td>
+                            <td>Production Backend API</td>
+                            <td>development</td>
+                            <td><span class="badge active">Production</span></td>
+                        </tr>
+                        <tr>
+                            <td><a class="link" href="https://github.com/Honey-Badger-Labs/sustainnet-monorepo">sustainnet-monorepo</a></td>
+                            <td>Main Mobile App</td>
+                            <td>development</td>
+                            <td><span class="badge proposed">Pre-MLP</span></td>
+                        </tr>
+                        <tr>
+                            <td><a class="link" href="https://github.com/Honey-Badger-Labs/sustainnet-website">sustainnet-website</a></td>
+                            <td>Marketing Website</td>
+                            <td>development</td>
+                            <td><span class="badge active">MVP1</span></td>
+                        </tr>
+                        <tr>
+                            <td><a class="link" href="https://github.com/Honey-Badger-Labs/sustainnet-observability">sustainnet-observability</a></td>
+                            <td>Monitoring & Dashboards</td>
+                            <td>development</td>
+                            <td><span class="badge active">Active</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="section">
+                <h2>🎯 Current Sprint Focus</h2>
+                <div class="grid grid-2">
+                    <div class="card">
+                        <h3>In Progress</h3>
+                        <ul style="list-style: none; font-size: 0.85rem;">
+                            <li>🔄 Merge all workflow changes to main</li>
+                            <li>🔄 Enable GitHub Pages for dashboard</li>
+                            <li>🔄 Delete staging branches across repos</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3>Next Up</h3>
+                        <ul style="list-style: none; font-size: 0.85rem;">
+                            <li>📋 Implement Family Meal Planner enhancements</li>
+                            <li>📋 SustainNet MLP development</li>
+                            <li>📋 Observability dashboards</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- CDP AGENTS TAB -->
+        <div id="agents" class="tab-content">
+            <div class="grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 1rem;">
+                <div class="card">
+                    <h3>Total Agents</h3>
+                    <div class="metric blue">15</div>
+                </div>
+                <div class="card">
+                    <h3>DevOps Pipeline</h3>
+                    <div class="metric green">8</div>
+                </div>
+                <div class="card">
+                    <h3>Operations</h3>
+                    <div class="metric purple">2</div>
+                </div>
+                <div class="card">
+                    <h3>Leadership & Support</h3>
+                    <div class="metric yellow">5</div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>🔄 Pipeline Agents</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.85rem;">
+                    Agents that form the Continuous Delivery Pipeline - from idea to production.
+                </p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Agent</th>
+                            <th>Purpose</th>
+                            <th>Stage</th>
+                            <th>Last Run</th>
+                            <th>Score</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>🔍 Exploration</td>
+                            <td>Pre-development readiness, requirements validation</td>
+                            <td>Discovery</td>
+                            <td style="color: var(--text-secondary);">—</td>
+                            <td style="color: var(--text-secondary);">—</td>
+                            <td><span class="badge active">Ready</span></td>
+                        </tr>
+                        <tr>
+                            <td>🔗 Integration</td>
+                            <td>CI quality gates, PR validation, security checks</td>
+                            <td>Build</td>
+                            <td style="color: var(--text-secondary);">—</td>
+                            <td style="color: var(--text-secondary);">—</td>
+                            <td><span class="badge active">Ready</span></td>
+                        </tr>
+                        <tr>
+                            <td>🔒 Security</td>
+                            <td>SAST/DAST, secrets detection, dependency vulnerabilities</td>
+                            <td>Build</td>
+                            <td style="color: var(--accent-green);">Today</td>
+                            <td><span class="badge warning">56</span></td>
+                            <td><span class="badge active">Ready</span></td>
+                        </tr>
+                        <tr>
+                            <td>🧪 Testing</td>
+                            <td>Test coverage, flaky tests, E2E health</td>
+                            <td>Build</td>
+                            <td style="color: var(--accent-green);">Today</td>
+                            <td><span class="badge warning">26</span></td>
+                            <td><span class="badge active">Ready</span></td>
+                        </tr>
+                        <tr>
+                            <td>🚀 Deployment</td>
+                            <td>IaC validation, rollback plans, deployment readiness</td>
+                            <td>Deploy</td>
+                            <td style="color: var(--text-secondary);">—</td>
+                            <td style="color: var(--text-secondary);">—</td>
+                            <td><span class="badge active">Ready</span></td>
+                        </tr>
+                        <tr>
+                            <td>📦 Release</td>
+                            <td>Business approval, feature flags, release control</td>
+                            <td>Release</td>
+                            <td style="color: var(--text-secondary);">—</td>
+                            <td style="color: var(--text-secondary);">—</td>
+                            <td><span class="badge active">Ready</span></td>
+                        </tr>
+                        <tr>
+                            <td>📊 Measurement</td>
+                            <td>DORA metrics, VSM analytics, performance tracking</td>
+                            <td>Measure</td>
+                            <td style="color: var(--text-secondary);">—</td>
+                            <td style="color: var(--text-secondary);">—</td>
+                            <td><span class="badge active">Ready</span></td>
+                        </tr>
+                        <tr>
+                            <td>✅ Quality</td>
+                            <td>SonarQube integration, code smells, vulnerabilities</td>
+                            <td>Build</td>
+                            <td style="color: var(--text-secondary);">—</td>
+                            <td style="color: var(--text-secondary);">—</td>
+                            <td><span class="badge active">Ready</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="section">
+                <h2>⚙️ Operations Agents</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.85rem;">
+                    Agents for operational excellence - cost optimization and reliability.
+                </p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Agent</th>
+                            <th>Purpose</th>
+                            <th>Key Features</th>
+                            <th>Last Run</th>
+                            <th>Score</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>💰 FinOps</td>
+                            <td>Cloud cost intelligence & optimization</td>
+                            <td>Budget tracking, idle resources, rightsizing</td>
+                            <td style="color: var(--accent-green);">Today</td>
+                            <td><span class="badge warning">71</span></td>
+                            <td><span class="badge active">Ready</span></td>
+                        </tr>
+                        <tr>
+                            <td>🔧 SRE</td>
+                            <td>Site reliability & SLO compliance</td>
+                            <td>Error budgets, incident analysis, MTTR</td>
+                            <td style="color: var(--accent-green);">Today</td>
+                            <td><span class="badge warning">75</span></td>
+                            <td><span class="badge active">Ready</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="section">
+                <h2>👥 Leadership & Support Agents</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Agent</th>
+                            <th>Purpose</th>
+                            <th>Frameworks</th>
+                            <th>Last Run</th>
+                            <th>Score</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>🎯 Leadership</td>
+                            <td>Team coaching, conflict resolution, culture building</td>
+                            <td>GROW, SCARF, Design Thinking</td>
+                            <td style="color: var(--text-secondary);">—</td>
+                            <td style="color: var(--text-secondary);">—</td>
+                            <td><span class="badge active">Ready</span></td>
+                        </tr>
+                        <tr>
+                            <td>📐 Modeling</td>
+                            <td>Data architecture, schema validation</td>
+                            <td>ERD validation, migrations</td>
+                            <td style="color: var(--text-secondary);">—</td>
+                            <td style="color: var(--text-secondary);">—</td>
+                            <td><span class="badge active">Ready</span></td>
+                        </tr>
+                        <tr>
+                            <td>📝 Documentation</td>
+                            <td>API docs, README freshness, changelog compliance</td>
+                            <td>Coverage analysis, staleness</td>
+                            <td style="color: var(--accent-green);">Today</td>
+                            <td><span class="badge warning">74</span></td>
+                            <td><span class="badge active">Ready</span></td>
+                        </tr>
+                        <tr>
+                            <td>📦 Dependencies</td>
+                            <td>Outdated packages, license compliance, vulnerabilities</td>
+                            <td>npm/pip audit, updates</td>
+                            <td style="color: var(--accent-green);">Today</td>
+                            <td><span class="badge warning">68</span></td>
+                            <td><span class="badge active">Ready</span></td>
+                        </tr>
+                        <tr>
+                            <td>👋 Onboarding</td>
+                            <td>New contributor readiness, setup validation</td>
+                            <td>Dev environment, docs</td>
+                            <td style="color: var(--accent-green);">Today</td>
+                            <td><span class="badge active">88</span></td>
+                            <td><span class="badge active">Ready</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="section">
+                <h2>🚀 MCP Server Status</h2>
+                <div class="grid grid-2">
+                    <div class="card" style="border-left: 3px solid var(--accent-yellow);">
+                        <h3>POC Status</h3>
+                        <p style="font-size: 0.85rem; margin-top: 0.5rem;">
+                            ✅ MCP Server framework created<br>
+                            ✅ FinOps + SRE agents added<br>
+                            🔄 Local testing in progress<br>
+                            📋 Cloudflare deployment planned
+                        </p>
+                    </div>
+                    <div class="card" style="border-left: 3px solid var(--accent-blue);">
+                        <h3>Monetization Path</h3>
+                        <p style="font-size: 0.85rem; margin-top: 0.5rem;">
+                            🆓 Free: 3 agents, 100 checks/mo<br>
+                            💼 Pro: All agents, unlimited - $29/mo<br>
+                            🏢 Enterprise: Custom + support - $299/mo<br>
+                            📊 Target: R500K-R1.5M ARR Year 1
+                        </p>
+                    </div>
+                </div>
+                <p style="margin-top: 1rem; font-size: 0.75rem; color: var(--text-secondary);">
+                    Strategy: <a class="link" href="#">sustainnet-vision/STRATEGY/CDP-MCP-MONETIZATION-STRATEGY.md</a> (CONFIDENTIAL)
+                </p>
+            </div>
+        </div>
+        
+        <!-- DECISIONS TAB -->
+        <div id="decisions" class="tab-content">
+            <div class="grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 1rem;">
+                <div class="card">
+                    <h3>Active</h3>
+                    <div class="metric green">14</div>
+                </div>
+                <div class="card">
+                    <h3>Superseded</h3>
+                    <div class="metric" style="color: var(--text-secondary);">1</div>
+                </div>
+                <div class="card">
+                    <h3>Proposed</h3>
+                    <div class="metric yellow">0</div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>📋 Decision Register (Key Decisions)</h2>
+                <p style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Sorted by impact: Critical → High → Medium → Low</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Decision</th>
+                            <th>Status</th>
+                            <th>Impact</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- CRITICAL Impact -->
+                        <tr>
+                            <td>DR-009</td>
+                            <td>Local-First & GitHub Cost Optimization</td>
+                            <td><span class="badge active">ACTIVE</span></td>
+                            <td><span class="badge critical">CRITICAL</span></td>
+                            <td>2025-01-05</td>
+                        </tr>
+                        <!-- HIGH Impact -->
+                        <tr>
+                            <td>DR-016</td>
+                            <td>2-Branch Strategy (Lean Git Flow)</td>
+                            <td><span class="badge active">ACTIVE</span></td>
+                            <td><span class="badge critical">HIGH</span></td>
+                            <td>2026-01-11</td>
+                        </tr>
+                        <tr>
+                            <td>DR-008</td>
+                            <td>AI Framework Integration (MCP + Copilot)</td>
+                            <td><span class="badge active">ACTIVE</span></td>
+                            <td><span class="badge critical">HIGH</span></td>
+                            <td>2026-01-11</td>
+                        </tr>
+                        <tr>
+                            <td>DR-015</td>
+                            <td>Personalisation Quadrant v0</td>
+                            <td><span class="badge active">ACTIVE</span></td>
+                            <td><span class="badge critical">HIGH</span></td>
+                            <td>2026-01-06</td>
+                        </tr>
+                        <tr>
+                            <td>DR-007</td>
+                            <td>Standard Agent Schema Structure</td>
+                            <td><span class="badge active">ACTIVE</span></td>
+                            <td><span class="badge critical">HIGH</span></td>
+                            <td>2025-01-05</td>
+                        </tr>
+                        <tr>
+                            <td>DR-006</td>
+                            <td>Centralized Observability Repository</td>
+                            <td><span class="badge active">ACTIVE</span></td>
+                            <td><span class="badge critical">HIGH</span></td>
+                            <td>2025-01-04</td>
+                        </tr>
+                        <tr>
+                            <td>DR-004</td>
+                            <td>Azure Free Tier / AWS Production</td>
+                            <td><span class="badge active">ACTIVE</span></td>
+                            <td><span class="badge critical">HIGH</span></td>
+                            <td>2025-01-05</td>
+                        </tr>
+                        <!-- SUPERSEDED (Historical) -->
+                        <tr style="opacity: 0.6;">
+                            <td>DR-002</td>
+                            <td>Git Flow Branch Strategy (3-branch)</td>
+                            <td><span class="badge superseded">SUPERSEDED</span></td>
+                            <td>HIGH</td>
+                            <td>2025-01-02</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p style="margin-top: 1rem; font-size: 0.75rem; color: var(--text-secondary);">
+                    Full register: <a class="link" href="https://github.com/Honey-Badger-Labs/sustainnet-vision/blob/development/GOVERNANCE/DECISION_REGISTER.md">sustainnet-vision/GOVERNANCE/DECISION_REGISTER.md</a>
+                </p>
+            </div>
+            
+            <div class="section">
+                <h2>⚠️ Decisions Needing Review</h2>
+                <p style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Sorted by impact: Critical → High → Medium → Low</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Decision</th>
+                            <th>Impact</th>
+                            <th>Reason</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>DR-004</td>
+                            <td>Azure Free / AWS Prod</td>
+                            <td><span class="badge critical">HIGH</span></td>
+                            <td>Staging environment removed - simplify cloud strategy?</td>
+                            <td><span class="badge review">REVIEW</span></td>
+                        </tr>
+                        <tr>
+                            <td>DR-010</td>
+                            <td>MVP1 Website Tech Stack</td>
+                            <td><span class="badge warning">MEDIUM</span></td>
+                            <td>Consider Cloudflare Pages or Vercel for free hosting</td>
+                            <td><span class="badge review">REVIEW</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- FLYWHEEL TAB -->
+        <div id="flywheel" class="tab-content">
+            <div class="section">
+                <h2>🔄 Collaboration Flywheel</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.875rem;">
+                    Each stage feeds into the next, accelerating our delivery and learning. The faster the flywheel spins, the more momentum we build.
+                </p>
+                <div class="flywheel">
+                    <div class="flywheel-stage">
+                        <span class="icon">📋</span>
+                        <span class="label">DECIDE</span>
+                    </div>
+                    <span class="flywheel-arrow">→</span>
+                    <div class="flywheel-stage active">
+                        <span class="icon">⚡</span>
+                        <span class="label">ACT</span>
+                    </div>
+                    <span class="flywheel-arrow">→</span>
+                    <div class="flywheel-stage">
+                        <span class="icon">📦</span>
+                        <span class="label">SHIP</span>
+                    </div>
+                    <span class="flywheel-arrow">→</span>
+                    <div class="flywheel-stage">
+                        <span class="icon">📊</span>
+                        <span class="label">MEASURE</span>
+                    </div>
+                    <span class="flywheel-arrow">→</span>
+                    <div class="flywheel-stage">
+                        <span class="icon">💡</span>
+                        <span class="label">LEARN</span>
+                    </div>
+                </div>
+                <p style="text-align: center; margin-top: 1rem; font-size: 0.75rem; color: var(--text-secondary);">
+                    Learning feeds back into Decisions → The flywheel accelerates
+                </p>
+            </div>
+            
+            <div class="grid grid-2">
+                <div class="section">
+                    <h2 style="color: var(--accent-green);">🚀 Accelerators (Keep Doing)</h2>
+                    <div class="retro-column">
+                        <div class="retro-item positive">Session banners with SAST time + model info</div>
+                        <div class="retro-item positive">Decision Register as organizational memory</div>
+                        <div class="retro-item positive">2-branch strategy reducing merge overhead</div>
+                        <div class="retro-item positive">Copilot Instructions for consistent context</div>
+                        <div class="retro-item positive">Cost-conscious workflow optimization</div>
+                        <div class="retro-item positive">Local-first development approach</div>
+                    </div>
+                </div>
+                <div class="section">
+                    <h2 style="color: var(--accent-red);">🐌 Friction Points (Resolved)</h2>
+                    <div class="retro-column">
+                        <div class="retro-item negative">✅ Scheduled workflows running without value → DISABLED</div>
+                        <div class="retro-item negative">✅ 3-branch strategy overhead → NOW 2-BRANCH</div>
+                        <div class="retro-item negative">✅ Duplicate push + PR triggers → CLEANED UP</div>
+                        <div class="retro-item negative">⚠️ Documentation sprawl in FMP (80+ md files)</div>
+                        <div class="retro-item negative">⚠️ Session protocol sometimes dropped</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>📈 Flywheel Metrics</h2>
+                <div class="grid" style="grid-template-columns: repeat(4, 1fr);">
+                    <div class="card">
+                        <h3>Decisions Made</h3>
+                        <div class="metric blue">16</div>
+                        <div class="metric-label">Total DR entries</div>
+                    </div>
+                    <div class="card">
+                        <h3>Sessions Logged</h3>
+                        <div class="metric purple">1</div>
+                        <div class="metric-label">Since tracking started</div>
+                    </div>
+                    <div class="card">
+                        <h3>Accelerators</h3>
+                        <div class="metric green">6</div>
+                        <div class="metric-label">What's working</div>
+                    </div>
+                    <div class="card">
+                        <h3>Friction Resolved</h3>
+                        <div class="metric yellow">3</div>
+                        <div class="metric-label">Issues addressed</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- RETROSPECTIVE TAB -->
+        <div id="retro" class="tab-content">
+            <div class="section">
+                <h2>💭 Continuous Improvement Register</h2>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.875rem;">
+                    Learnings from our collaboration sessions. Each insight drives decisions or actions.
+                </p>
+            </div>
+            
+            <div class="grid grid-3">
+                <div class="section">
+                    <h2 style="color: var(--accent-green);">✅ Start Doing</h2>
+                    <div class="retro-column">
+                        <div class="retro-item action">Always display session banner at interaction start</div>
+                        <div class="retro-item action">Run `date` command for accurate SAST time</div>
+                        <div class="retro-item action">Review Decision Register before major changes</div>
+                        <div class="retro-item action">Use GitHub Pages for free dashboard hosting</div>
+                        <div class="retro-item action">Log session outcomes for continuous learning</div>
+                    </div>
+                </div>
+                <div class="section">
+                    <h2 style="color: var(--accent-red);">🛑 Stop Doing</h2>
+                    <div class="retro-column">
+                        <div class="retro-item negative">Running expensive scans per-PR (→ weekly)</div>
+                        <div class="retro-item negative">Maintaining staging branches</div>
+                        <div class="retro-item negative">Duplicate push + PR triggers</div>
+                        <div class="retro-item negative">Dropping session protocol mid-conversation</div>
+                        <div class="retro-item negative">Scheduled workflows without clear value</div>
+                    </div>
+                </div>
+                <div class="section">
+                    <h2 style="color: var(--accent-blue);">🔄 Keep Doing</h2>
+                    <div class="retro-column">
+                        <div class="retro-item positive">Centralized observability in dedicated repo</div>
+                        <div class="retro-item positive">Decision Register for organizational memory</div>
+                        <div class="retro-item positive">Copilot Instructions in every repo</div>
+                        <div class="retro-item positive">Local-first development approach</div>
+                        <div class="retro-item positive">Cost-conscious infrastructure choices</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>📝 Session Learnings Log</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Session Focus</th>
+                            <th>Key Learning</th>
+                            <th>Action Taken</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2026-01-11</td>
+                            <td>Workspace Assessment & Cost Reduction</td>
+                            <td>Session time was 2.5hr behind - need `date` command</td>
+                            <td>Updated MASTER-COPILOT-INSTRUCTIONS.md</td>
+                        </tr>
+                        <tr>
+                            <td>2026-01-11</td>
+                            <td>Branching Strategy</td>
+                            <td>3-branch overhead not justified for lean team</td>
+                            <td>DR-016: Adopted 2-branch strategy</td>
+                        </tr>
+                        <tr>
+                            <td>2026-01-11</td>
+                            <td>GitHub Costs</td>
+                            <td>~650 scheduled workflow runs/month were wasteful</td>
+                            <td>Disabled all schedule triggers</td>
+                        </tr>
+                        <tr>
+                            <td>2026-01-11</td>
+                            <td>AI Framework Integration</td>
+                            <td>MCP + Copilot Instructions beats VS Code extensions</td>
+                            <td>DR-008: Activated with hybrid approach</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- SESSIONS TAB -->
+        <div id="sessions" class="tab-content">
+            <div class="section">
+                <h2>🤖 Copilot Session History</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Start Time</th>
+                            <th>Duration</th>
+                            <th>Model</th>
+                            <th>Focus Area</th>
+                            <th>Outcomes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>2026-01-11</td>
+                            <td>~12:00 SAST</td>
+                            <td>3+ hours</td>
+                            <td>Claude Opus 4.5</td>
+                            <td>Workspace Assessment, Cost Reduction, Strategy</td>
+                            <td>
+                                • Full workspace assessment<br>
+                                • 16 workflows disabled<br>
+                                • DR-016 (2-branch)<br>
+                                • DR-008 activated<br>
+                                • Dashboard v2 created
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="section">
+                <h2>📊 Session Metrics</h2>
+                <div class="grid" style="grid-template-columns: repeat(4, 1fr);">
+                    <div class="card">
+                        <h3>Total Sessions</h3>
+                        <div class="metric blue">1</div>
+                        <div class="metric-label">Since tracking started</div>
+                    </div>
+                    <div class="card">
+                        <h3>Avg Duration</h3>
+                        <div class="metric purple">3h+</div>
+                        <div class="metric-label">Per session</div>
+                    </div>
+                    <div class="card">
+                        <h3>Decisions Made</h3>
+                        <div class="metric green">3</div>
+                        <div class="metric-label">This session</div>
+                    </div>
+                    <div class="card">
+                        <h3>Files Modified</h3>
+                        <div class="metric yellow">25+</div>
+                        <div class="metric-label">Across repos</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2>🎯 Session Protocol Reminder</h2>
+                <div class="card" style="background: var(--bg-primary); border-left: 3px solid var(--accent-blue);">
+                    <p style="font-family: monospace; font-size: 0.8rem; white-space: pre-wrap;">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🌍 SESSION START
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📅 Time: [CURRENT_TIME] SAST (GMT+2)
+🤖 Model: [AI_MODEL_NAME]
+📋 Task: [BRIEF_DESCRIPTION]
+⏱️  Est. Completion: [ESTIMATED_TIME]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</p>
+                </div>
+                <p style="margin-top: 1rem; font-size: 0.75rem; color: var(--text-secondary);">
+                    Every AI interaction should start with this banner for consistency and traceability.
+                </p>
+            </div>
+        </div>
+        
+        <footer>
+            <p>
+                🦡 Honey Badger Labs | 
+                <a href="https://github.com/Honey-Badger-Labs">GitHub</a> | 
+                Built with GitHub Pages | 
+                Collaboration OS v2.0
+            </p>
+            <p style="margin-top: 0.5rem;">
+                "The whole is greater than the sum of its parts" - Human + AI Partnership
+            </p>
+        </footer>
+    </div>
+    
+    <script>
+        // Update timestamp
+        document.getElementById('last-updated').textContent = new Date().toLocaleString('en-ZA', {
+            timeZone: 'Africa/Johannesburg',
+            dateStyle: 'medium',
+            timeStyle: 'short'
+        }) + ' SAST';
+        
+        // Tab switching
+        function showTab(tabId) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab').forEach(btn => btn.classList.remove('active'));
+            
+            // Show selected tab
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>

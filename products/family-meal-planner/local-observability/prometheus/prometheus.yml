@@ -1,0 +1,20 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  # FMP API metrics
+  - job_name: 'family-meal-planner-api'
+    static_configs:
+      - targets: ['fmp-api:3001']
+    metrics_path: '/metrics'
+
+  # Redis metrics (if exporter is added)
+  - job_name: 'family-meal-planner-cache'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+
+  # PostgreSQL metrics (if exporter is added)
+  - job_name: 'family-meal-planner-db'
+    static_configs:
+      - targets: ['postgres-exporter:9187']

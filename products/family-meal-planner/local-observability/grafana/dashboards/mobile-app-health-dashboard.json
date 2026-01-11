@@ -1,0 +1,316 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Family Meal Planner - Mobile App Health",
+    "tags": ["family-meal-planner", "mobile", "expo", "app-health"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Crash-Free Sessions (%)",
+        "type": "gauge",
+        "targets": [
+          {
+            "expr": "((sum(rate(mobile_app_sessions_total{job=\"family-meal-planner-mobile\"}[1h])) - sum(rate(mobile_app_crashes_total{job=\"family-meal-planner-mobile\"}[1h]))) / sum(rate(mobile_app_sessions_total{job=\"family-meal-planner-mobile\"}[1h]))) * 100",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "thresholds": {
+              "steps": [
+                {"value": 0, "color": "red"},
+                {"value": 99, "color": "yellow"},
+                {"value": 99.5, "color": "green"}
+              ]
+            },
+            "min": 95,
+            "max": 100
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 0,
+          "y": 0
+        }
+      },
+      {
+        "id": 2,
+        "title": "Total App Sessions (Last 24h)",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(increase(mobile_app_sessions_total{job=\"family-meal-planner-mobile\"}[24h]))",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short"
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 6,
+          "y": 0
+        }
+      },
+      {
+        "id": 3,
+        "title": "Average Session Duration",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "avg(mobile_app_session_duration_seconds{job=\"family-meal-planner-mobile\"})",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "decimals": 1
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 12,
+          "y": 0
+        }
+      },
+      {
+        "id": 4,
+        "title": "App Crashes (Last 24h)",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(increase(mobile_app_crashes_total{job=\"family-meal-planner-mobile\"}[24h]))",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {"value": 0, "color": "green"},
+                {"value": 10, "color": "yellow"},
+                {"value": 50, "color": "red"}
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 18,
+          "y": 0
+        }
+      },
+      {
+        "id": 5,
+        "title": "Session Trends (Last 7 Days)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sum(rate(mobile_app_sessions_total{job=\"family-meal-planner-mobile\"}[1h]))",
+            "refId": "A",
+            "legendFormat": "Total Sessions"
+          },
+          {
+            "expr": "sum(rate(mobile_app_crashes_total{job=\"family-meal-planner-mobile\"}[1h]))",
+            "refId": "B",
+            "legendFormat": "Crashes"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 6
+        }
+      },
+      {
+        "id": 6,
+        "title": "Platform Distribution",
+        "type": "piechart",
+        "targets": [
+          {
+            "expr": "sum by (platform) (increase(mobile_app_sessions_total{job=\"family-meal-planner-mobile\"}[24h]))",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 6
+        }
+      },
+      {
+        "id": 7,
+        "title": "API Request Success Rate (%)",
+        "type": "gauge",
+        "targets": [
+          {
+            "expr": "((sum(rate(mobile_api_requests_total{job=\"family-meal-planner-mobile\"}[5m])) - sum(rate(mobile_api_request_failures_total{job=\"family-meal-planner-mobile\"}[5m]))) / sum(rate(mobile_api_requests_total{job=\"family-meal-planner-mobile\"}[5m]))) * 100",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "thresholds": {
+              "steps": [
+                {"value": 0, "color": "red"},
+                {"value": 90, "color": "yellow"},
+                {"value": 98, "color": "green"}
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 0,
+          "y": 14
+        }
+      },
+      {
+        "id": 8,
+        "title": "Offline Sync Success Rate (%)",
+        "type": "gauge",
+        "targets": [
+          {
+            "expr": "(sum(rate(mobile_offline_sync_success_total{job=\"family-meal-planner-mobile\"}[5m])) / sum(rate(mobile_offline_sync_attempts_total{job=\"family-meal-planner-mobile\"}[5m]))) * 100",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "thresholds": {
+              "steps": [
+                {"value": 0, "color": "red"},
+                {"value": 85, "color": "yellow"},
+                {"value": 95, "color": "green"}
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 6,
+          "y": 14
+        }
+      },
+      {
+        "id": 9,
+        "title": "App Load Time (p95)",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(mobile_app_load_time_seconds_bucket{job=\"family-meal-planner-mobile\"}[5m]))",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s",
+            "decimals": 2,
+            "thresholds": {
+              "steps": [
+                {"value": 0, "color": "green"},
+                {"value": 3, "color": "yellow"},
+                {"value": 5, "color": "red"}
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 12,
+          "y": 14
+        }
+      },
+      {
+        "id": 10,
+        "title": "Failed API Requests (Last 24h)",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sum(increase(mobile_api_request_failures_total{job=\"family-meal-planner-mobile\"}[24h]))",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "thresholds": {
+              "steps": [
+                {"value": 0, "color": "green"},
+                {"value": 50, "color": "yellow"},
+                {"value": 200, "color": "red"}
+              ]
+            }
+          }
+        },
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 18,
+          "y": 14
+        }
+      },
+      {
+        "id": 11,
+        "title": "Most Used Features (Last 7 Days)",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "topk(10, sum by (feature) (increase(mobile_feature_usage_total{job=\"family-meal-planner-mobile\"}[7d])))",
+            "refId": "A",
+            "format": "table"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 20
+        }
+      },
+      {
+        "id": 12,
+        "title": "Top Crash Locations",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "topk(10, sum by (location) (increase(mobile_app_crashes_total{job=\"family-meal-planner-mobile\"}[7d])))",
+            "refId": "A",
+            "format": "table"
+          }
+        ],
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 20
+        }
+      }
+    ],
+    "refresh": "30s",
+    "time": {
+      "from": "now-24h",
+      "to": "now"
+    }
+  }
+}

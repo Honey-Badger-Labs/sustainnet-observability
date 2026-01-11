@@ -1,0 +1,191 @@
+# Grafana Alerting Rules for Family Meal Planner
+# These alerts translate technical issues into business impacts
+
+groups:
+  - name: family-meal-planner.alerts
+    rules:
+      # Business Impact Alerts
+      - alert: APIDown
+        expr: up{job="family-meal-planner-api"} == 0
+        for: 5m
+        labels:
+          severity: critical
+          impact: business
+        annotations:
+          summary: "Family Meal Planner API is DOWN"
+          description: "The API has been unreachable for 5+ minutes. Users cannot access meal planning features."
+          business_impact: "Complete loss of meal planning functionality for all users"
+          action_required: "Immediate investigation required - check AWS Lambda/EC2, database connectivity"
+
+      - alert: HighErrorRate
+        expr: sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m])) > 0.05
+        for: 3m
+        labels:
+          severity: warning
+          impact: business
+        annotations:
+          summary: "High API error rate detected"
+          description: "Server error rate is {{ $value | printf \"%.2f%%\" }} - above 5% threshold"
+          business_impact: "Users experiencing technical difficulties with meal planning, recipe searches, and family features"
+          action_required: "Monitor error logs, check database health, investigate recent deployments"
+
+      - alert: SlowAPIResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+          impact: user-experience
+        annotations:
+          summary: "Slow API response time"
+          description: "95th percentile response time is {{ $value | printf \"%.2f\" }}s - above 500ms threshold"
+          business_impact: "Poor user experience may lead to app abandonment and reduced engagement"
+          action_required: "Check database query performance, review slow endpoint logs, optimize queries"
+
+      - alert: HighLoginFailureRate
+        expr: sum(rate(auth_login_failures_total[5m])) / sum(rate(auth_login_attempts_total[5m])) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          impact: business
+        annotations:
+          summary: "High login failure rate"
+          description: "Login failure rate is {{ $value | printf \"%.2f%%\" }} - above 10% threshold"
+          business_impact: "Users unable to access their meal plans and family data"
+          action_required: "Check authentication service, verify database connectivity, review recent password changes"
+
+      # Technical Alerts
+      - alert: DatabaseConnectionErrors
+        expr: rate(database_connection_errors_total[5m]) > 0
+        for: 2m
+        labels:
+          severity: error
+          impact: technical
+        annotations:
+          summary: "Database connection errors detected"
+          description: "{{ $value | printf \"%.2f\" }} database connection errors per second"
+          business_impact: "Users may experience failed requests and data inconsistencies"
+          action_required: "Check PostgreSQL health, verify connection pool settings, review RDS metrics"
+
+      - alert: RedisConnectionFailure
+        expr: redis_up{job="family-meal-planner-cache"} == 0
+        for: 3m
+        labels:
+          severity: error
+          impact: technical
+        annotations:
+          summary: "Redis cache is down"
+          description: "Redis connection has been unavailable for 3+ minutes"
+          business_impact: "Increased database load, slower response times, potential service degradation"
+          action_required: "Restart Redis service, check connection configuration, verify AWS ElastiCache health"
+
+      - alert: LowCacheHitRate
+        expr: sum(rate(redis_hits_total[5m])) / (sum(rate(redis_hits_total[5m])) + sum(rate(redis_misses_total[5m]))) < 0.7
+        for: 10m
+        labels:
+          severity: info
+          impact: performance
+        annotations:
+          summary: "Low Redis cache hit rate"
+          description: "Cache hit rate is {{ $value | printf \"%.1f%%\" }} - below 70% threshold"
+          business_impact: "Increased database queries leading to slower performance and higher costs"
+          action_required: "Review cache TTL settings, analyze cache key patterns, consider cache warming strategies"
+
+      - alert: HighDatabaseQueryTime
+        expr: histogram_quantile(0.95, rate(database_query_duration_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+          impact: performance
+        annotations:
+          summary: "Slow database queries detected"
+          description: "95th percentile query time is {{ $value | printf \"%.2f\" }}s - above 1 second threshold"
+          business_impact: "Slow page loads, poor user experience, potential timeouts"
+          action_required: "Identify slow queries, add missing indexes, optimize N+1 query patterns"
+
+      # Mobile App Alerts
+      - alert: HighAppCrashRate
+        expr: sum(rate(mobile_app_crashes_total[1h])) / sum(rate(mobile_app_sessions_total[1h])) > 0.005
+        for: 10m
+        labels:
+          severity: warning
+          impact: user-experience
+        annotations:
+          summary: "High mobile app crash rate"
+          description: "App crash rate is {{ $value | printf \"%.2f%%\" }} - above 0.5% threshold"
+          business_impact: "Users experiencing app instability, potential negative reviews and uninstalls"
+          action_required: "Review crash logs in Expo/Sentry, identify common crash patterns, prioritize fixes"
+
+      - alert: MobileAPIFailures
+        expr: sum(rate(mobile_api_request_failures_total[5m])) / sum(rate(mobile_api_requests_total[5m])) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          impact: user-experience
+        annotations:
+          summary: "High mobile API request failure rate"
+          description: "Mobile API failure rate is {{ $value | printf \"%.2f%%\" }} - above 10% threshold"
+          business_impact: "Mobile users unable to sync data, search recipes, or create meal plans"
+          action_required: "Check API health, verify mobile app version compatibility, review network connectivity issues"
+
+      # Deployment Alerts
+      - alert: DeploymentFailed
+        expr: github_workflow_status{workflow=~"Deploy.*FMP.*"} == 1
+        for: 1m
+        labels:
+          severity: error
+          impact: technical
+        annotations:
+          summary: "FMP deployment failed"
+          description: "The {{ $labels.workflow }} workflow failed to complete"
+          business_impact: "New features or bug fixes not deployed to users"
+          action_required: "Check GitHub Actions logs, verify infrastructure health, rollback if necessary"
+
+      - alert: SeedDataValidationFailed
+        expr: database_seed_validation_errors_total > 0
+        for: 1m
+        labels:
+          severity: error
+          impact: technical
+        annotations:
+          summary: "Database seed data validation failed"
+          description: "{{ $value }} seed data validation errors detected"
+          business_impact: "Test users may not exist, local development environment may be broken"
+          action_required: "Re-run seeders, verify database schema, check migration status"
+
+      # Success Confirmations
+      - alert: DeploymentSuccessful
+        expr: github_workflow_status{workflow=~"Deploy.*FMP.*"} == 0
+        for: 1m
+        labels:
+          severity: info
+          impact: positive
+        annotations:
+          summary: "FMP deployment completed successfully"
+          description: "{{ $labels.workflow }} deployed successfully to {{ $labels.branch }}"
+          business_impact: "New features and improvements are now live for users"
+          action_required: "Monitor error rates and user feedback, verify functionality in production"
+
+      # Data Quality Alerts
+      - alert: LowRecipeSearchResults
+        expr: avg(recipe_search_results_count) < 1
+        for: 10m
+        labels:
+          severity: warning
+          impact: user-experience
+        annotations:
+          summary: "Recipe searches returning few results"
+          description: "Average search results count is {{ $value | printf \"%.1f\" }} - may indicate data quality issues"
+          business_impact: "Users may not find recipes they're looking for, leading to frustration"
+          action_required: "Review search algorithm, verify recipe database completeness, check indexing"
+
+      - alert: UnusuallyHighFamilyInvitationFailures
+        expr: sum(rate(family_invitation_failures_total[1h])) / sum(rate(family_invitations_sent_total[1h])) > 0.2
+        for: 15m
+        labels:
+          severity: warning
+          impact: business
+        annotations:
+          summary: "High family invitation failure rate"
+          description: "Invitation failure rate is {{ $value | printf \"%.2f%%\" }} - above 20% threshold"
+          business_impact: "Users unable to add family members, limiting collaborative meal planning"
+          action_required: "Check email delivery (MailHog/production SMTP), verify invitation token generation, review database constraints"
