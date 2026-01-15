@@ -18,7 +18,7 @@ groups:
           action_required: "Immediate investigation required - check AWS Lambda/EC2, database connectivity"
 
       - alert: HighErrorRate
-        expr: sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m])) > 0.05
+        expr: sum(rate(fmp_http_requests_total{status=~"5.."}[5m])) / sum(rate(fmp_http_requests_total[5m])) > 0.05
         for: 3m
         labels:
           severity: warning
@@ -30,7 +30,7 @@ groups:
           action_required: "Monitor error logs, check database health, investigate recent deployments"
 
       - alert: SlowAPIResponseTime
-        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 0.5
+        expr: histogram_quantile(0.95, rate(fmp_http_request_duration_seconds_bucket[5m])) > 0.5
         for: 5m
         labels:
           severity: warning
@@ -42,7 +42,7 @@ groups:
           action_required: "Check database query performance, review slow endpoint logs, optimize queries"
 
       - alert: HighLoginFailureRate
-        expr: sum(rate(auth_login_failures_total[5m])) / sum(rate(auth_login_attempts_total[5m])) > 0.1
+        expr: sum(rate(fmp_auth_login_failures_total[5m])) / sum(rate(fmp_auth_login_attempts_total[5m])) > 0.1
         for: 5m
         labels:
           severity: warning
@@ -79,7 +79,7 @@ groups:
           action_required: "Restart Redis service, check connection configuration, verify AWS ElastiCache health"
 
       - alert: LowCacheHitRate
-        expr: sum(rate(redis_hits_total[5m])) / (sum(rate(redis_hits_total[5m])) + sum(rate(redis_misses_total[5m]))) < 0.7
+        expr: sum(rate(fmp_redis_hits_total[5m])) / (sum(rate(fmp_redis_hits_total[5m])) + sum(rate(fmp_redis_misses_total[5m]))) < 0.7
         for: 10m
         labels:
           severity: info
@@ -91,7 +91,7 @@ groups:
           action_required: "Review cache TTL settings, analyze cache key patterns, consider cache warming strategies"
 
       - alert: HighDatabaseQueryTime
-        expr: histogram_quantile(0.95, rate(database_query_duration_seconds_bucket[5m])) > 1
+        expr: histogram_quantile(0.95, rate(fmp_database_query_duration_seconds_bucket[5m])) > 1
         for: 5m
         labels:
           severity: warning
@@ -104,7 +104,7 @@ groups:
 
       # Mobile App Alerts
       - alert: HighAppCrashRate
-        expr: sum(rate(mobile_app_crashes_total[1h])) / sum(rate(mobile_app_sessions_total[1h])) > 0.005
+        expr: sum(rate(fmp_mobile_app_crashes_total[1h])) / sum(rate(fmp_mobile_app_sessions_total[1h])) > 0.005
         for: 10m
         labels:
           severity: warning
@@ -116,7 +116,7 @@ groups:
           action_required: "Review crash logs in Expo/Sentry, identify common crash patterns, prioritize fixes"
 
       - alert: MobileAPIFailures
-        expr: sum(rate(mobile_api_request_failures_total[5m])) / sum(rate(mobile_api_requests_total[5m])) > 0.1
+        expr: sum(rate(fmp_mobile_api_request_failures_total[5m])) / sum(rate(fmp_mobile_api_requests_total[5m])) > 0.1
         for: 5m
         labels:
           severity: warning
@@ -167,7 +167,7 @@ groups:
 
       # Data Quality Alerts
       - alert: LowRecipeSearchResults
-        expr: avg(recipe_search_results_count) < 1
+        expr: avg(fmp_recipe_search_results_count) < 1
         for: 10m
         labels:
           severity: warning
@@ -179,7 +179,7 @@ groups:
           action_required: "Review search algorithm, verify recipe database completeness, check indexing"
 
       - alert: UnusuallyHighFamilyInvitationFailures
-        expr: sum(rate(family_invitation_failures_total[1h])) / sum(rate(family_invitations_sent_total[1h])) > 0.2
+        expr: sum(rate(fmp_family_invitation_failures_total[1h])) / sum(rate(fmp_family_invitations_sent_total[1h])) > 0.2
         for: 15m
         labels:
           severity: warning

@@ -3,10 +3,10 @@ global:
   evaluation_interval: 15s
 
 scrape_configs:
-  # FMP API metrics
+  # FMP API metrics (use host.docker.internal for local development)
   - job_name: 'family-meal-planner-api'
     static_configs:
-      - targets: ['fmp-api:3001']
+      - targets: ['host.docker.internal:3001']
     metrics_path: '/metrics'
 
   # Redis metrics (if exporter is added)

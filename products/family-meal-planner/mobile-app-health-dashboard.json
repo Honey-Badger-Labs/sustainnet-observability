@@ -11,7 +11,7 @@
         "type": "gauge",
         "targets": [
           {
-            "expr": "((sum(rate(mobile_app_sessions_total{job=\"family-meal-planner-mobile\"}[1h])) - sum(rate(mobile_app_crashes_total{job=\"family-meal-planner-mobile\"}[1h]))) / sum(rate(mobile_app_sessions_total{job=\"family-meal-planner-mobile\"}[1h]))) * 100",
+            "expr": "((sum(rate(fmp_mobile_app_sessions_total{job=\"family-meal-planner-mobile\"}[1h])) - sum(rate(fmp_mobile_app_crashes_total{job=\"family-meal-planner-mobile\"}[1h]))) / sum(rate(fmp_mobile_app_sessions_total{job=\"family-meal-planner-mobile\"}[1h]))) * 100",
             "refId": "A"
           }
         ],
@@ -42,7 +42,7 @@
         "type": "stat",
         "targets": [
           {
-            "expr": "sum(increase(mobile_app_sessions_total{job=\"family-meal-planner-mobile\"}[24h]))",
+            "expr": "sum(increase(fmp_mobile_app_sessions_total{job=\"family-meal-planner-mobile\"}[24h]))",
             "refId": "A"
           }
         ],
@@ -64,7 +64,7 @@
         "type": "stat",
         "targets": [
           {
-            "expr": "avg(mobile_app_session_duration_seconds{job=\"family-meal-planner-mobile\"})",
+            "expr": "avg(fmp_mobile_app_session_duration_seconds{job=\"family-meal-planner-mobile\"})",
             "refId": "A"
           }
         ],
@@ -87,7 +87,7 @@
         "type": "stat",
         "targets": [
           {
-            "expr": "sum(increase(mobile_app_crashes_total{job=\"family-meal-planner-mobile\"}[24h]))",
+            "expr": "sum(increase(fmp_mobile_app_crashes_total{job=\"family-meal-planner-mobile\"}[24h]))",
             "refId": "A"
           }
         ],
@@ -119,12 +119,12 @@
         "type": "graph",
         "targets": [
           {
-            "expr": "sum(rate(mobile_app_sessions_total{job=\"family-meal-planner-mobile\"}[1h]))",
+            "expr": "sum(rate(fmp_mobile_app_sessions_total{job=\"family-meal-planner-mobile\"}[1h]))",
             "refId": "A",
             "legendFormat": "Total Sessions"
           },
           {
-            "expr": "sum(rate(mobile_app_crashes_total{job=\"family-meal-planner-mobile\"}[1h]))",
+            "expr": "sum(rate(fmp_mobile_app_crashes_total{job=\"family-meal-planner-mobile\"}[1h]))",
             "refId": "B",
             "legendFormat": "Crashes"
           }
@@ -142,7 +142,7 @@
         "type": "piechart",
         "targets": [
           {
-            "expr": "sum by (platform) (increase(mobile_app_sessions_total{job=\"family-meal-planner-mobile\"}[24h]))",
+            "expr": "sum by (platform) (increase(fmp_mobile_app_sessions_total{job=\"family-meal-planner-mobile\"}[24h]))",
             "refId": "A"
           }
         ],
@@ -159,7 +159,7 @@
         "type": "gauge",
         "targets": [
           {
-            "expr": "((sum(rate(mobile_api_requests_total{job=\"family-meal-planner-mobile\"}[5m])) - sum(rate(mobile_api_request_failures_total{job=\"family-meal-planner-mobile\"}[5m]))) / sum(rate(mobile_api_requests_total{job=\"family-meal-planner-mobile\"}[5m]))) * 100",
+            "expr": "((sum(rate(fmp_mobile_api_requests_total{job=\"family-meal-planner-mobile\"}[5m])) - sum(rate(fmp_mobile_api_request_failures_total{job=\"family-meal-planner-mobile\"}[5m]))) / sum(rate(fmp_mobile_api_requests_total{job=\"family-meal-planner-mobile\"}[5m]))) * 100",
             "refId": "A"
           }
         ],
@@ -188,7 +188,7 @@
         "type": "gauge",
         "targets": [
           {
-            "expr": "(sum(rate(mobile_offline_sync_success_total{job=\"family-meal-planner-mobile\"}[5m])) / sum(rate(mobile_offline_sync_attempts_total{job=\"family-meal-planner-mobile\"}[5m]))) * 100",
+            "expr": "(sum(rate(fmp_mobile_offline_sync_success_total{job=\"family-meal-planner-mobile\"}[5m])) / sum(rate(fmp_mobile_offline_sync_attempts_total{job=\"family-meal-planner-mobile\"}[5m]))) * 100",
             "refId": "A"
           }
         ],
@@ -217,7 +217,7 @@
         "type": "stat",
         "targets": [
           {
-            "expr": "histogram_quantile(0.95, rate(mobile_app_load_time_seconds_bucket{job=\"family-meal-planner-mobile\"}[5m]))",
+            "expr": "histogram_quantile(0.95, rate(fmp_mobile_app_load_time_seconds_bucket{job=\"family-meal-planner-mobile\"}[5m]))",
             "refId": "A"
           }
         ],
@@ -247,7 +247,7 @@
         "type": "stat",
         "targets": [
           {
-            "expr": "sum(increase(mobile_api_request_failures_total{job=\"family-meal-planner-mobile\"}[24h]))",
+            "expr": "sum(increase(fmp_mobile_api_request_failures_total{job=\"family-meal-planner-mobile\"}[24h]))",
             "refId": "A"
           }
         ],
@@ -276,7 +276,7 @@
         "type": "table",
         "targets": [
           {
-            "expr": "topk(10, sum by (feature) (increase(mobile_feature_usage_total{job=\"family-meal-planner-mobile\"}[7d])))",
+            "expr": "topk(10, sum by (feature) (increase(fmp_mobile_feature_usage_total{job=\"family-meal-planner-mobile\"}[7d])))",
             "refId": "A",
             "format": "table"
           }
@@ -294,7 +294,7 @@
         "type": "table",
         "targets": [
           {
-            "expr": "topk(10, sum by (location) (increase(mobile_app_crashes_total{job=\"family-meal-planner-mobile\"}[7d])))",
+            "expr": "topk(10, sum by (location) (increase(fmp_mobile_app_crashes_total{job=\"family-meal-planner-mobile\"}[7d])))",
             "refId": "A",
             "format": "table"
           }

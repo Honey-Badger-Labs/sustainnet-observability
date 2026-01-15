@@ -1,5 +1,8 @@
 # FMP Observability Implementation Summary
 
+> **Last Updated:** 15 January 2026
+> **Status:** ✅ Phase 1 Complete - API Instrumentation Ready
+
 ## ✅ What's Been Created
 
 ### 1. Documentation
@@ -13,6 +16,7 @@
   - Mobile App Health (crashes, API failures, offline sync)
   - Deployment Status (success/failure notifications)
   - Data Quality (search results, invitation failures)
+  - **All alerts now use `fmp_*` metric prefix**
 
 ### 3. Grafana Dashboards (JSON)
 
@@ -50,14 +54,37 @@
   - Deploy Redis and PostgreSQL exporters
   - Connect to existing FMP local dev environment
 
-## 📊 Metrics Coverage
+## 📊 Metrics Coverage (fmp_* prefix)
 
 ### API Metrics
-- `http_requests_total` - Total HTTP requests by method, route, status
-- `http_request_duration_seconds` - Request latency histogram
-- `database_query_duration_seconds` - DB query performance
-- `database_connections_active` - Active DB connections
-- `redis_hits_total` / `redis_misses_total` - Cache performance
+- `fmp_http_requests_total` - Total HTTP requests by method, route, status
+- `fmp_http_request_duration_seconds` - Request latency histogram
+- `fmp_http_errors_total` - HTTP error counts
+- `fmp_http_active_requests` - Currently in-flight requests
+
+### Database Metrics
+- `fmp_database_query_duration_seconds` - DB query performance
+- `fmp_database_connections_active` - Active DB connections
+- `fmp_database_total_users` - Total registered users
+- `fmp_database_total_families` - Total active families
+
+### Authentication Metrics (✅ Instrumented in auth.js)
+- `fmp_auth_login_attempts_total` - Login attempts by status
+- `fmp_auth_login_success_total` - Successful logins by user
+- `fmp_auth_login_failures_total` - Failed logins by reason
+- `fmp_auth_token_refresh_total` - Token refresh attempts
+
+### Redis Cache Metrics
+- `fmp_redis_hits_total` - Cache hits
+- `fmp_redis_misses_total` - Cache misses
+- `fmp_redis_operation_duration_seconds` - Redis operation latency
+
+### Business Metrics
+- `fmp_recipe_searches_total` - Recipe search operations
+- `fmp_meal_plans_created_total` - Meal plans created
+- `fmp_family_invitations_sent_total` - Invitations sent
+- `fmp_family_invitations_accepted_total` - Invitations accepted
+- `fmp_feature_usage_total` - Feature usage tracking
 
 ### Authentication Metrics
 - `auth_login_attempts_total` - Login attempts by status
@@ -71,22 +98,23 @@
 - `family_invitations_accepted_total` - Invitations accepted
 
 ### Mobile Metrics
-- `mobile_app_sessions_total` - App sessions by platform
-- `mobile_app_crashes_total` - App crashes by location
-- `mobile_app_session_duration_seconds` - Session duration
-- `mobile_api_request_failures_total` - Failed API calls from mobile
-- `mobile_offline_sync_success_total` - Offline sync success
+- `fmp_mobile_app_sessions_total` - App sessions by platform
+- `fmp_mobile_app_crashes_total` - App crashes by location
+- `fmp_mobile_app_session_duration_seconds` - Session duration
+- `fmp_mobile_api_request_failures_total` - Failed API calls from mobile
+- `fmp_mobile_offline_sync_success_total` - Offline sync success
 
-## 🔄 Next Steps
+## 🔄 Current Status & Next Steps
 
-### Phase 1: Local Development (Current)
-1. **Instrument FMP API** following INSTRUMENTATION_GUIDE.md
-   - Add `prom-client` npm package
-   - Create metrics module
-   - Add middleware to track HTTP requests
-   - Instrument auth, business logic, and DB queries
+### Phase 1: Local Development ✅ COMPLETE
+1. ✅ **FMP API Instrumented** 
+   - `prom-client` npm package added
+   - Metrics module created at `src/metrics/prometheus.js`
+   - HTTP middleware tracks all requests
+   - Auth metrics instrumented in `src/routes/auth.js`
+   - Full metric coverage with `fmp_*` prefix
    
-2. **Test Locally**
+2. **Test Locally** (Ready)
    - Run `./setup-local-demo.sh` to start observability stack
    - Access Grafana at http://localhost:3000 (admin/admin)
    - Verify metrics flowing from API to Prometheus
@@ -97,7 +125,7 @@
    - Verify alerts fire in Grafana
    - Configure notification channels (Slack, email)
 
-### Phase 2: Production Deployment
+### Phase 2: Production Deployment (Next)
 1. **Set up Grafana Cloud** (free tier)
    - Create account at grafana.com
    - Configure remote write for Prometheus

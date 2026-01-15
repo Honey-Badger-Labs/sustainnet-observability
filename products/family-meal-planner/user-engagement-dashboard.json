@@ -11,7 +11,7 @@
         "type": "stat",
         "targets": [
           {
-            "expr": "database_total_users{job=\"family-meal-planner-api\"}",
+            "expr": "fmp_database_total_users{job=\"family-meal-planner-api\"}",
             "refId": "A"
           }
         ],
@@ -36,7 +36,7 @@
         "type": "stat",
         "targets": [
           {
-            "expr": "count(count by (user_id) (auth_login_success_total{job=\"family-meal-planner-api\"}[24h]))",
+            "expr": "count(count by (user_id) (fmp_auth_login_success_total{job=\"family-meal-planner-api\"}[24h]))",
             "refId": "A"
           }
         ],
@@ -61,7 +61,7 @@
         "type": "stat",
         "targets": [
           {
-            "expr": "database_total_families{job=\"family-meal-planner-api\"}",
+            "expr": "fmp_database_total_families{job=\"family-meal-planner-api\"}",
             "refId": "A"
           }
         ],
@@ -83,7 +83,7 @@
         "type": "gauge",
         "targets": [
           {
-            "expr": "(sum(rate(auth_login_success_total{job=\"family-meal-planner-api\"}[24h])) / sum(rate(auth_login_attempts_total{job=\"family-meal-planner-api\"}[24h]))) * 100",
+            "expr": "(sum(rate(fmp_auth_login_success_total{job=\"family-meal-planner-api\"}[24h])) / sum(rate(fmp_auth_login_attempts_total{job=\"family-meal-planner-api\"}[24h]))) * 100",
             "refId": "A"
           }
         ],
@@ -112,7 +112,7 @@
         "type": "graph",
         "targets": [
           {
-            "expr": "database_total_users{job=\"family-meal-planner-api\"}",
+            "expr": "fmp_database_total_users{job=\"family-meal-planner-api\"}",
             "refId": "A",
             "legendFormat": "Total Users"
           }
@@ -130,7 +130,7 @@
         "type": "graph",
         "targets": [
           {
-            "expr": "count(count by (user_id) (auth_login_success_total{job=\"family-meal-planner-api\"}[24h]))",
+            "expr": "count(count by (user_id) (fmp_auth_login_success_total{job=\"family-meal-planner-api\"}[24h]))",
             "refId": "A",
             "legendFormat": "DAU"
           }
@@ -148,7 +148,7 @@
         "type": "stat",
         "targets": [
           {
-            "expr": "sum(increase(recipe_searches_total{job=\"family-meal-planner-api\"}[24h]))",
+            "expr": "sum(increase(fmp_recipe_searches_total{job=\"family-meal-planner-api\"}[24h]))",
             "refId": "A"
           }
         ],
@@ -170,7 +170,7 @@
         "type": "stat",
         "targets": [
           {
-            "expr": "sum(increase(meal_plans_created_total{job=\"family-meal-planner-api\"}[24h]))",
+            "expr": "sum(increase(fmp_meal_plans_created_total{job=\"family-meal-planner-api\"}[24h]))",
             "refId": "A"
           }
         ],
@@ -192,7 +192,7 @@
         "type": "stat",
         "targets": [
           {
-            "expr": "sum(increase(family_invitations_sent_total{job=\"family-meal-planner-api\"}[24h]))",
+            "expr": "sum(increase(fmp_family_invitations_sent_total{job=\"family-meal-planner-api\"}[24h]))",
             "refId": "A"
           }
         ],
@@ -214,7 +214,7 @@
         "type": "gauge",
         "targets": [
           {
-            "expr": "(sum(increase(family_invitations_accepted_total{job=\"family-meal-planner-api\"}[7d])) / sum(increase(family_invitations_sent_total{job=\"family-meal-planner-api\"}[7d]))) * 100",
+            "expr": "(sum(increase(fmp_family_invitations_accepted_total{job=\"family-meal-planner-api\"}[7d])) / sum(increase(fmp_family_invitations_sent_total{job=\"family-meal-planner-api\"}[7d]))) * 100",
             "refId": "A"
           }
         ],
@@ -243,7 +243,7 @@
         "type": "piechart",
         "targets": [
           {
-            "expr": "topk(5, sum by (feature) (increase(feature_usage_total{job=\"family-meal-planner-api\"}[7d])))",
+            "expr": "topk(5, sum by (feature) (increase(fmp_feature_usage_total{job=\"family-meal-planner-api\"}[7d])))",
             "refId": "A"
           }
         ],
@@ -260,7 +260,7 @@
         "type": "graph",
         "targets": [
           {
-            "expr": "(count(count by (user_id) (auth_login_success_total{job=\"family-meal-planner-api\"}[7d])) / count(count by (user_id) (auth_login_success_total{job=\"family-meal-planner-api\"}[14d]))) * 100",
+            "expr": "(count(count by (user_id) (fmp_auth_login_success_total{job=\"family-meal-planner-api\"}[7d])) / count(count by (user_id) (fmp_auth_login_success_total{job=\"family-meal-planner-api\"}[14d]))) * 100",
             "refId": "A",
             "legendFormat": "7-Day Retention Rate"
           }

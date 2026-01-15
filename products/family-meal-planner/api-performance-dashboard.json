@@ -47,7 +47,7 @@
         "type": "graph",
         "targets": [
           {
-            "expr": "sum(rate(http_requests_total{job=\"family-meal-planner-api\"}[5m]))",
+            "expr": "sum(rate(fmp_http_requests_total{job=\"family-meal-planner-api\"}[5m]))",
             "refId": "A",
             "legendFormat": "Total Requests"
           }
@@ -65,12 +65,12 @@
         "type": "graph",
         "targets": [
           {
-            "expr": "sum(rate(http_requests_total{job=\"family-meal-planner-api\",status=~\"5..\"}[5m])) / sum(rate(http_requests_total{job=\"family-meal-planner-api\"}[5m])) * 100",
+            "expr": "sum(rate(fmp_http_requests_total{job=\"family-meal-planner-api\",status=~\"5..\"}[5m])) / sum(rate(fmp_http_requests_total{job=\"family-meal-planner-api\"}[5m])) * 100",
             "refId": "A",
             "legendFormat": "5xx Error Rate"
           },
           {
-            "expr": "sum(rate(http_requests_total{job=\"family-meal-planner-api\",status=~\"4..\"}[5m])) / sum(rate(http_requests_total{job=\"family-meal-planner-api\"}[5m])) * 100",
+            "expr": "sum(rate(fmp_http_requests_total{job=\"family-meal-planner-api\",status=~\"4..\"}[5m])) / sum(rate(fmp_http_requests_total{job=\"family-meal-planner-api\"}[5m])) * 100",
             "refId": "B",
             "legendFormat": "4xx Error Rate"
           }
@@ -101,17 +101,17 @@
         "type": "graph",
         "targets": [
           {
-            "expr": "histogram_quantile(0.50, rate(http_request_duration_seconds_bucket{job=\"family-meal-planner-api\"}[5m]))",
+            "expr": "histogram_quantile(0.50, rate(fmp_http_request_duration_seconds_bucket{job=\"family-meal-planner-api\"}[5m]))",
             "refId": "A",
             "legendFormat": "p50"
           },
           {
-            "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job=\"family-meal-planner-api\"}[5m]))",
+            "expr": "histogram_quantile(0.95, rate(fmp_http_request_duration_seconds_bucket{job=\"family-meal-planner-api\"}[5m]))",
             "refId": "B",
             "legendFormat": "p95"
           },
           {
-            "expr": "histogram_quantile(0.99, rate(http_request_duration_seconds_bucket{job=\"family-meal-planner-api\"}[5m]))",
+            "expr": "histogram_quantile(0.99, rate(fmp_http_request_duration_seconds_bucket{job=\"family-meal-planner-api\"}[5m]))",
             "refId": "C",
             "legendFormat": "p99"
           }
@@ -135,7 +135,7 @@
         "type": "graph",
         "targets": [
           {
-            "expr": "histogram_quantile(0.95, rate(database_query_duration_seconds_bucket{job=\"family-meal-planner-api\"}[5m]))",
+            "expr": "histogram_quantile(0.95, rate(fmp_database_query_duration_seconds_bucket{job=\"family-meal-planner-api\"}[5m]))",
             "refId": "A",
             "legendFormat": "p95 Query Time"
           }
@@ -159,7 +159,7 @@
         "type": "stat",
         "targets": [
           {
-            "expr": "database_connections_active{job=\"family-meal-planner-api\"}",
+            "expr": "fmp_database_connections_active{job=\"family-meal-planner-api\"}",
             "refId": "A"
           }
         ],
@@ -188,7 +188,7 @@
         "type": "gauge",
         "targets": [
           {
-            "expr": "sum(rate(redis_hits_total{job=\"family-meal-planner-cache\"}[5m])) / (sum(rate(redis_hits_total{job=\"family-meal-planner-cache\"}[5m])) + sum(rate(redis_misses_total{job=\"family-meal-planner-cache\"}[5m]))) * 100",
+            "expr": "sum(rate(fmp_redis_hits_total{job=\"family-meal-planner-cache\"}[5m])) / (sum(rate(fmp_redis_hits_total{job=\"family-meal-planner-cache\"}[5m])) + sum(rate(fmp_redis_misses_total{job=\"family-meal-planner-cache\"}[5m]))) * 100",
             "refId": "A"
           }
         ],
@@ -217,7 +217,7 @@
         "type": "gauge",
         "targets": [
           {
-            "expr": "(sum(rate(auth_login_success_total{job=\"family-meal-planner-api\"}[5m])) / sum(rate(auth_login_attempts_total{job=\"family-meal-planner-api\"}[5m]))) * 100",
+            "expr": "(sum(rate(fmp_auth_login_success_total{job=\"family-meal-planner-api\"}[5m])) / sum(rate(fmp_auth_login_attempts_total{job=\"family-meal-planner-api\"}[5m]))) * 100",
             "refId": "A"
           }
         ],
@@ -246,7 +246,7 @@
         "type": "table",
         "targets": [
           {
-            "expr": "topk(10, sum by (endpoint) (rate(http_requests_total{job=\"family-meal-planner-api\"}[5m])))",
+            "expr": "topk(10, sum by (endpoint) (rate(fmp_http_requests_total{job=\"family-meal-planner-api\"}[5m])))",
             "refId": "A",
             "format": "table"
           }
@@ -264,7 +264,7 @@
         "type": "table",
         "targets": [
           {
-            "expr": "topk(10, histogram_quantile(0.95, sum by (endpoint) (rate(http_request_duration_seconds_bucket{job=\"family-meal-planner-api\"}[5m]))))",
+            "expr": "topk(10, histogram_quantile(0.95, sum by (endpoint) (rate(fmp_http_request_duration_seconds_bucket{job=\"family-meal-planner-api\"}[5m]))))",
             "refId": "A",
             "format": "table"
           }
