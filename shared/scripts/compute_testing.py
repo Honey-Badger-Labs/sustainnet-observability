@@ -12,8 +12,10 @@ GitHub API. Coverage values are left null until CI exposes standardized coverage
 """
 import os
 import json
+import re
+import base64
 from datetime import datetime, timedelta, timezone
-from typing import Dict, List
+from typing import Dict, List, Optional
 import urllib.request
 
 API = "https://api.github.com"
@@ -62,6 +64,67 @@ def list_workflows(owner: str, repo: str) -> List[Dict]:
             break
         page += 1
     return workflows
+
+
+def get_workflow_content(owner: str, repo: str, workflow_path: str) -> Optional[str]:
+    """Fetch the content of a workflow file from the repository."""
+    try:
+        # Remove leading .github/workflows/ if present to get the relative path
+        path = workflow_path.lstrip("/")
+        url = f"{API}/repos/{owner}/{repo}/contents/{path}"
+        data = api_get(url)
+        # The content is base64 encoded
+        content_b64 = data.get("content", "")
+        if content_b64:
+            return base64.b64decode(content_b64).decode("utf-8")
+    except Exception as e:
+        print(f"Failed to fetch workflow content for {workflow_path}: {e}")
+    return None
+
+
+def workflow_executes_tests(workflow_content: str) -> bool:
+    """
+    Check if a workflow file actually executes tests by inspecting its content.
+    
+    This looks for explicit test execution commands in the workflow steps,
+    rather than relying on workflow names which can be misleading.
+    """
+    if not workflow_content:
+        return False
+    
+    # Patterns that indicate actual test execution
+    # These are command patterns that actually run tests, not just documentation or deployment
+    test_execution_patterns = [
+        r'\bnpm\s+(run\s+)?test\b',           # npm test, npm run test
+        r'\bnpm\s+run\s+test:',               # npm run test:unit, test:e2e, etc.
+        r'\byarn\s+(run\s+)?test\b',          # yarn test
+        r'\bpnpm\s+(run\s+)?test\b',          # pnpm test
+        r'\bpytest\b',                         # pytest
+        r'\bpython\s+-m\s+pytest\b',          # python -m pytest
+        r'\bpython\s+-m\s+unittest\b',        # python -m unittest
+        r'\bjest\b',                           # jest
+        r'\bvitest\b',                         # vitest
+        r'\bplaywright\s+test\b',             # playwright test
+        r'\bcypress\s+run\b',                 # cypress run
+        r'\bmvn\s+test\b',                    # mvn test
+        r'\bgradle\s+test\b',                 # gradle test
+        r'\bgo\s+test\b',                     # go test
+        r'\bcargo\s+test\b',                  # cargo test
+        r'\bdotnet\s+test\b',                 # dotnet test
+        r'\bphpunit\b',                       # phpunit
+        r'\brspec\b',                         # rspec
+        r'\bminitest\b',                      # minitest
+        r'\btest:coverage\b',                 # coverage commands
+        r'\bcoverage\s+run\b',                # python coverage
+    ]
+    
+    # Look for test execution patterns in the content
+    content_lower = workflow_content.lower()
+    for pattern in test_execution_patterns:
+        if re.search(pattern, content_lower):
+            return True
+    
+    return False
 
 
 def list_runs_for_workflow(owner: str, repo: str, workflow_id: int, since: datetime) -> List[Dict]:
@@ -128,22 +191,16 @@ def compute_repo_testing(owner: str, repo: str, window_days: int) -> Dict:
     test_runs = 0
     for wf in workflows:
         wf_id = wf.get("id")
-        wf_name = (wf.get("name") or "").lower()
-        wf_path = (wf.get("path") or "").lower()
-        if not wf_id:
+        wf_path = wf.get("path")
+        if not wf_id or not wf_path:
             continue
-        # Only count workflows that are actually test workflows
-        # Match patterns like "test.yml", "run-tests", "ci-test", etc.
-        # Exclude pure deployment workflows but keep "deploy-tests", "test-deploy", etc.
-        test_keywords = ["test", "jest", "vitest", "playwright", "cypress", "e2e", "unit-test", "integration-test"]
-        has_test_keyword = any(keyword in wf_name or keyword in wf_path for keyword in test_keywords)
-        # It's a test workflow if it has test keywords and isn't ONLY about deployment
-        is_test_workflow = has_test_keyword and not (
-            ("deploy" in wf_name or "deploy" in wf_path) and 
-            not any(test_kw in wf_name or test_kw in wf_path for test_kw in ["test"])
-        )
-        if not is_test_workflow:
+        
+        # Fetch workflow content and check if it actually executes tests
+        workflow_content = get_workflow_content(owner, repo, wf_path)
+        if not workflow_executes_tests(workflow_content):
             continue
+        
+        # This is a test workflow - count its runs
         runs = list_runs_for_workflow(owner, repo, wf_id, since)
         total_runs += len(runs)
         # Count successful test runs
