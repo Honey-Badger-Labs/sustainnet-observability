@@ -1,0 +1,130 @@
+# CODEOWNERS - sustainnet-observability (Centralized Monitoring)
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# @Honey-Badger-Labs/sre = Site reliability & observability
+# @Honey-Badger-Labs/devops = Infrastructure & automation
+# @Honey-Badger-Labs/backend = Application-level instrumentation
+
+# ============================================================================
+# OBSERVABILITY INFRASTRUCTURE
+# ============================================================================
+
+# IaC for monitoring (Terraform modules)
+/shared/iac/ @Honey-Badger-Labs/sre @Honey-Badger-Labs/devops
+*.tf @Honey-Badger-Labs/sre @Honey-Badger-Labs/devops
+
+# CloudWatch integration
+/shared/cloudwatch/ @Honey-Badger-Labs/sre
+/shared/dashboards/ @Honey-Badger-Labs/sre
+
+# ============================================================================
+# DASHBOARDS & VISUALIZATION
+# ============================================================================
+
+# Business intelligence dashboards
+/shared/dashboards/ @Honey-Badger-Labs/sre
+/products/*/dashboards/ @Honey-Badger-Labs/sre
+
+# Dashboard templates & definitions
+*.json @Honey-Badger-Labs/sre
+
+# ============================================================================
+# ALERTING & MONITORING
+# ============================================================================
+
+# Alert rules
+/shared/alerting/ @Honey-Badger-Labs/sre
+/products/*/alerting/ @Honey-Badger-Labs/sre
+
+# SNS topics & notification config
+/shared/notifications/ @Honey-Badger-Labs/sre
+
+# ============================================================================
+# PRODUCT-SPECIFIC MONITORING
+# ============================================================================
+
+# Website monitoring
+/products/sustainnet-website/ @Honey-Badger-Labs/sre
+/products/sustainnet-website/dashboards/ @Honey-Badger-Labs/sre
+
+# Family Meal Planner monitoring
+/products/family-meal-planner/ @Honey-Badger-Labs/sre @Honey-Badger-Labs/backend
+/products/family-meal-planner-app/ @Honey-Badger-Labs/sre
+
+# Monorepo monitoring
+/products/sustainnet-monorepo/ @Honey-Badger-Labs/sre
+
+# ============================================================================
+# LOGS & TRACING
+# ============================================================================
+
+# Log management
+/logs/ @Honey-Badger-Labs/sre
+/shared/logs/ @Honey-Badger-Labs/sre
+
+# Distributed tracing
+/shared/tracing/ @Honey-Badger-Labs/sre
+
+# Copilot session logs
+/logs/copilot-sessions/ @Honey-Badger-Labs/sre
+
+# ============================================================================
+# SCRIPTS & AUTOMATION
+# ============================================================================
+
+# Utility scripts
+/shared/scripts/ @Honey-Badger-Labs/sre @Honey-Badger-Labs/devops
+
+# Deployment & setup
+*.sh @Honey-Badger-Labs/sre @Honey-Badger-Labs/devops
+
+# ============================================================================
+# DORA & METRICS TRACKING
+# ============================================================================
+
+# DORA metrics definitions
+/shared/metrics/ @Honey-Badger-Labs/sre
+
+# Value stream mapping
+/docs/ @Honey-Badger-Labs/sre
+
+# ============================================================================
+# DOCUMENTATION & CONFIGURATION
+# ============================================================================
+
+# Setup guides
+README.md @Honey-Badger-Labs/sre
+/docs/CONTRIBUTING.md @Honey-Badger-Labs/sre
+
+# Configuration
+.env* @Honey-Badger-Labs/sre @Honey-Badger-Labs/devops
+terraform.tfvars @Honey-Badger-Labs/sre
+
+# ============================================================================
+# SECURITY & COMPLIANCE
+# ============================================================================
+
+# Policies & governance
+SECURITY.md @Honey-Badger-Labs/sre
+LICENSE @Honey-Badger-Labs/sre
+
+# Secrets management
+.gitignore @Honey-Badger-Labs/devops
+.gitignore.local @Honey-Badger-Labs/devops
+
+# ============================================================================
+# CI/CD & AUTOMATION
+# ============================================================================
+
+# GitHub Actions
+.github/workflows/ @Honey-Badger-Labs/devops @Honey-Badger-Labs/sre
+
+# Docker
+Dockerfile* @Honey-Badger-Labs/devops
+docker-compose.yml @Honey-Badger-Labs/devops
+
+# ============================================================================
+# DEFAULT
+# ============================================================================
+
+* @Honey-Badger-Labs/sre
