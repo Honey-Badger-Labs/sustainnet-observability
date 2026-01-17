@@ -133,8 +133,13 @@ def compute_repo_testing(owner: str, repo: str, window_days: int) -> Dict:
         if not wf_id:
             continue
         # Only count workflows that are actually test workflows
-        is_test_workflow = any(keyword in wf_name or keyword in wf_path 
-                               for keyword in ["test", "jest", "vitest", "playwright", "cypress", "e2e"])
+        # Match patterns like "test.yml", "run-tests", "ci-test", etc, not "latest-deployment"
+        test_keywords = ["test", "jest", "vitest", "playwright", "cypress", "e2e", "unit-test", "integration-test"]
+        is_test_workflow = any(
+            (keyword in wf_name and "deploy" not in wf_name) or 
+            (keyword in wf_path and "deploy" not in wf_path)
+            for keyword in test_keywords
+        )
         if not is_test_workflow:
             continue
         runs = list_runs_for_workflow(owner, repo, wf_id, since)
@@ -156,7 +161,8 @@ def compute_repo_testing(owner: str, repo: str, window_days: int) -> Dict:
     # Filter closed issues to exclude bugs (we want features/enhancements closed)
     closed_non_bugs = [i for i in closed_issues if not any(l.get("name", "").lower() == "bug" for l in i.get("labels", []))]
     # Defect leakage = bugs found / work items delivered
-    defect_leakage_rate = (len(opened_bugs) / len(closed_non_bugs)) if closed_non_bugs else 0.0
+    # Return None if no work was delivered in the window (can't calculate meaningful rate)
+    defect_leakage_rate = (len(opened_bugs) / len(closed_non_bugs)) if closed_non_bugs else None
 
     return {
         "coverage_overall": None,
@@ -180,7 +186,7 @@ def main():
         "coverage_integration": None,
         "coverage_e2e": None,
         "automation_rate": 0.0,
-        "defect_leakage_rate": 0.0,
+        "defect_leakage_rate": 0.0,  # Will be set to None if no repos have data
     }
     repos_out: Dict[str, Dict] = {}
 
@@ -189,13 +195,20 @@ def main():
         repos_out[f"{owner}/{repo}"] = metrics
         # Aggregate automation rate and defect leakage as simple mean
         overall["automation_rate"] += metrics["automation_rate"]
-        overall["defect_leakage_rate"] += metrics["defect_leakage_rate"]
+        # Only aggregate defect leakage if it's not None
+        if metrics["defect_leakage_rate"] is not None:
+            overall["defect_leakage_rate"] += metrics["defect_leakage_rate"]
 
         # Coverage remains None until data sources are connected
 
     if REPOS:
         overall["automation_rate"] /= len(REPOS)
-        overall["defect_leakage_rate"] /= len(REPOS)
+        # Only average defect leakage if we have data
+        repos_with_leakage = sum(1 for r in repos_out.values() if r["defect_leakage_rate"] is not None)
+        if repos_with_leakage > 0:
+            overall["defect_leakage_rate"] /= repos_with_leakage
+        else:
+            overall["defect_leakage_rate"] = None
 
     out = {
         "overall": overall,

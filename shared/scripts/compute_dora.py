@@ -96,9 +96,12 @@ def is_production_run(run: Dict, owner: str, repo: str) -> bool:
     for t in tokens:
         if t.lower() in name or t.lower() in display_title or t.lower() in path:
             return True
-    # Fallback heuristic: production OR deploy/release keywords
+    # Fallback heuristic: look for production+deployment patterns
     text = " ".join([name, display_title, path])
-    return any(keyword in text for keyword in ("prod", "production", "deploy", "release"))
+    has_prod = any(kw in text for kw in ("prod", "production"))
+    has_deploy = any(kw in text for kw in ("deploy", "release", "deployment"))
+    # Accept if both production and deployment indicators, OR if just production (tends to be explicit)
+    return has_prod or (has_deploy and ("main" in text or "master" in text))
 
 
 def compute_repo_metrics(owner: str, repo: str, token: Optional[str], window_days: int) -> Dict:
