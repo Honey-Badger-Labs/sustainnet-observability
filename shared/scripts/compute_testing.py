@@ -14,6 +14,7 @@ import os
 import json
 import re
 import base64
+import binascii
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional
 import urllib.request
@@ -82,7 +83,7 @@ def get_workflow_content(owner: str, repo: str, workflow_path: str) -> Optional[
             content_b64 = content_b64.replace("\n", "").replace(" ", "")
             decoded_bytes = base64.b64decode(content_b64)
             return decoded_bytes.decode("utf-8", errors="replace")
-    except (base64.binascii.Error, UnicodeDecodeError) as e:
+    except (binascii.Error, UnicodeDecodeError) as e:
         print(f"Failed to decode workflow content for {workflow_path}: {e}")
     except Exception as e:
         print(f"Failed to fetch workflow content for {workflow_path}: {e}")
@@ -202,20 +203,20 @@ def compute_repo_testing(owner: str, repo: str, window_days: int) -> Dict:
         if not wf_id or not wf_path:
             continue
         
-        # Fetch workflow content and check if it actually executes tests
-        workflow_content = get_workflow_content(owner, repo, wf_path)
-        if not workflow_executes_tests(workflow_content):
-            continue
-        
-        # This is a test workflow - count its runs
+        # Get all runs for this workflow
         runs = list_runs_for_workflow(owner, repo, wf_id, since)
         total_runs += len(runs)
-        # Count successful test runs
-        for r in runs:
-            # Only count runs that completed (success or failure are both valid test runs)
-            conclusion = (r.get("conclusion") or "").lower()
-            if conclusion in ["success", "failure"]:
-                test_runs += 1
+        
+        # Fetch workflow content and check if it actually executes tests
+        workflow_content = get_workflow_content(owner, repo, wf_path)
+        is_test_workflow = workflow_executes_tests(workflow_content)
+        
+        if is_test_workflow:
+            # Count runs from test workflows (success or failure are both valid test runs)
+            for r in runs:
+                conclusion = (r.get("conclusion") or "").lower()
+                if conclusion in ["success", "failure"]:
+                    test_runs += 1
 
     automation_rate = (test_runs / total_runs) if total_runs else 0.0
 
