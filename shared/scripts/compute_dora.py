@@ -26,10 +26,20 @@ import requests
 
 API = "https://api.github.com"
 UTC = timezone.utc
+TZ_Z = "+00:00"
+
+# Explicit production workflow hints per repo (filenames or tokens)
+PRODUCTION_HINTS = {
+    "Honey-Badger-Labs/sustainnet-observability": ["production-deploy.yml", "production-deploy"],
+    "Honey-Badger-Labs/sustainnet-website": ["production", "deploy", "prod", "production-deploy"],
+    "Honey-Badger-Labs/Family-Meal-Planner": ["prod", "production", "deploy"],
+    "Honey-Badger-Labs/Family-Meal-Planner-App": ["prod", "production", "deploy"],
+    "Honey-Badger-Labs/sustainnet-monorepo": ["prod", "production", "deploy"],
+}
 
 
 def iso(dt: datetime) -> str:
-    return dt.astimezone(UTC).isoformat().replace("+00:00", "Z")
+    return dt.astimezone(UTC).isoformat().replace(TZ_Z, "Z")
 
 
 def gh_get(url: str, token: Optional[str], params: Dict = None) -> Dict:
@@ -76,13 +86,18 @@ def get_commit(owner: str, repo: str, sha: str, token: Optional[str]) -> Optiona
         return None
 
 
-def is_production_run(run: Dict) -> bool:
+def is_production_run(run: Dict, owner: str, repo: str) -> bool:
     name = (run.get("name") or "").lower()
     display_title = (run.get("display_title") or "").lower()
     path = (run.get("path") or "").lower()
-    # Heuristics to identify production deployments
-    candidates = [name, display_title, path]
-    text = " ".join(candidates)
+    full = f"{owner}/{repo}"
+    tokens = PRODUCTION_HINTS.get(full, [])
+    # Exact token match first
+    for t in tokens:
+        if t.lower() in name or t.lower() in display_title or t.lower() in path:
+            return True
+    # Fallback heuristic
+    text = " ".join([name, display_title, path])
     return ("prod" in text or "production" in text) and ("deploy" in text or "release" in text)
 
 
@@ -93,7 +108,7 @@ def compute_repo_metrics(owner: str, repo: str, token: Optional[str], window_day
 
     for wf in workflows:
         runs = list_runs_for_workflow(owner, repo, wf["id"], token, since)
-        prod_runs.extend([r for r in runs if is_production_run(r)])
+        prod_runs.extend([r for r in runs if is_production_run(r, owner, repo)])
 
     if not prod_runs:
         return {
@@ -132,8 +147,8 @@ def compute_repo_metrics(owner: str, repo: str, token: Optional[str], window_day
         if not commit_dt_s:
             continue
         try:
-            commit_dt = datetime.fromisoformat(commit_dt_s.replace("Z", "+00:00"))
-            done_dt = datetime.fromisoformat(updated_at.replace("Z", "+00:00"))
+            commit_dt = datetime.fromisoformat(commit_dt_s.replace("Z", TZ_Z))
+            done_dt = datetime.fromisoformat(updated_at.replace("Z", TZ_Z))
             hours = (done_dt - commit_dt).total_seconds() / 3600.0
             if hours >= 0:
                 lead_times.append(hours)
@@ -154,13 +169,13 @@ def compute_repo_metrics(owner: str, repo: str, token: Optional[str], window_day
         fail_time_s = fr.get("updated_at") or fr.get("created_at") or fr.get("run_started_at")
         if not fail_time_s:
             continue
-        fail_time = datetime.fromisoformat(fail_time_s.replace("Z", "+00:00"))
+        fail_time = datetime.fromisoformat(fail_time_s.replace("Z", TZ_Z))
         # Find next success after this index
         for nr in prod_runs[i + 1 :]:
             if (nr.get("conclusion") or "").lower() == "success":
                 succ_time_s = nr.get("updated_at") or nr.get("created_at") or nr.get("run_started_at")
                 if succ_time_s:
-                    succ_time = datetime.fromisoformat(succ_time_s.replace("Z", "+00:00"))
+                    succ_time = datetime.fromisoformat(succ_time_s.replace("Z", TZ_Z))
                     delta_h = (succ_time - fail_time).total_seconds() / 3600.0
                     if delta_h >= 0:
                         ttrs.append(delta_h)

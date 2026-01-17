@@ -384,27 +384,27 @@
                                 <h3>Testing Metrics</h3>
                                 <div class="grid">
                                     <div>
-                                        <div class="metric red">72%</div>
+                                        <div class="metric" id="testing-overall-coverage">TBD</div>
                                         <div class="metric-label">Overall Coverage (target 80%)</div>
                                     </div>
                                     <div>
-                                        <div class="metric green">85%</div>
+                                        <div class="metric" id="testing-unit-coverage">TBD</div>
                                         <div class="metric-label">Unit Coverage</div>
                                     </div>
                                     <div>
-                                        <div class="metric yellow">60%</div>
+                                        <div class="metric" id="testing-integration-coverage">TBD</div>
                                         <div class="metric-label">Integration Coverage</div>
                                     </div>
                                     <div>
-                                        <div class="metric red">45%</div>
+                                        <div class="metric" id="testing-e2e-coverage">TBD</div>
                                         <div class="metric-label">E2E Coverage</div>
                                     </div>
                                     <div>
-                                        <div class="metric yellow">88.4%</div>
+                                        <div class="metric" id="testing-automation-rate">TBD</div>
                                         <div class="metric-label">Automation Rate (target 95%)</div>
                                     </div>
                                     <div>
-                                        <div class="metric red">10%</div>
+                                        <div class="metric" id="testing-defect-leakage">TBD</div>
                                         <div class="metric-label">Defect Leakage (target &lt;3%)</div>
                                     </div>
                                 </div>
@@ -451,6 +451,49 @@
                     setText('dora-ttr', ttr, ' h (avg)');
                 } catch (e) {
                     // silent fail; table remains TBD
+                }
+            })();
+
+            (async function loadTesting(){
+                try {
+                    const res = await fetch('./data/testing.json', { cache: 'no-store' });
+                    if (!res.ok) return;
+                    const data = await res.json();
+                    const overall = data.overall || {};
+
+                    const setText = (id, v) => {
+                        const el = document.getElementById(id);
+                        if (!el) return;
+                        if (v === null || v === undefined) {
+                            el.textContent = 'N/A';
+                            el.className = 'metric';
+                            return;
+                        }
+                        // Format percentages and apply color bands
+                        const val = typeof v === 'number' ? v : parseFloat(v);
+                        const pctText = `${val.toFixed(1)}%`;
+                        let cls = 'metric';
+                        if (id.includes('coverage') || id.includes('automation')) {
+                            if (val < 65) cls += ' red';
+                            else if (val < 80) cls += ' yellow';
+                            else cls += ' green';
+                        } else if (id.includes('defect')) {
+                            if (val >= 10) cls += ' red';
+                            else if (val >= 3) cls += ' yellow';
+                            else cls += ' green';
+                        }
+                        el.className = cls;
+                        el.textContent = pctText;
+                    };
+
+                    setText('testing-overall-coverage', overall.coverage_overall);
+                    setText('testing-unit-coverage', overall.coverage_unit);
+                    setText('testing-integration-coverage', overall.coverage_integration);
+                    setText('testing-e2e-coverage', overall.coverage_e2e);
+                    setText('testing-automation-rate', overall.automation_rate * 100);
+                    setText('testing-defect-leakage', overall.defect_leakage_rate * 100);
+                } catch (e) {
+                    // silent fail; metrics remain TBD
                 }
             })();
             </script>

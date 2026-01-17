@@ -1,0 +1,13 @@
+{
+  "overall": {
+    "coverage_overall": null,
+    "coverage_unit": null,
+    "coverage_integration": null,
+    "coverage_e2e": null,
+    "automation_rate": 0.0,
+    "defect_leakage_rate": 0.0
+  },
+  "repos": {},
+  "window_days": 30,
+  "timestamp": ""
+}
