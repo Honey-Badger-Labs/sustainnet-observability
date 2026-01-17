@@ -104,7 +104,7 @@ def workflow_executes_tests(workflow_content: str) -> bool:
     # These are command patterns that actually run tests, not just documentation or deployment
     test_execution_patterns = [
         r'\bnpm\s+(run\s+)?test\b',           # npm test, npm run test
-        r'\bnpm\s+run\s+test:',               # npm run test:unit, test:e2e, etc.
+        r'\bnpm\s+run\s+test:(unit|integration|e2e|coverage|all|watch|ci)\b',  # specific test commands
         r'\byarn\s+(run\s+)?test\b',          # yarn test
         r'\bpnpm\s+(run\s+)?test\b',          # pnpm test
         r'\bpytest\b',                         # pytest
@@ -121,8 +121,7 @@ def workflow_executes_tests(workflow_content: str) -> bool:
         r'\bdotnet\s+test\b',                 # dotnet test
         r'\bphpunit\b',                       # phpunit
         r'\brspec\s+(run|spec)\b',            # rspec run, rspec spec
-        r'\bruby\s+-s\s+rspec\b',             # ruby -S rspec (lowercase -s)
-        r'\btest:coverage\b',                 # coverage commands
+        r'\bruby\s+-s\s+rspec\b',             # ruby -S rspec (content is lowercased before matching)
         r'\bcoverage\s+run\b',                # python coverage
     ]
     
