@@ -69,14 +69,21 @@ def list_workflows(owner: str, repo: str) -> List[Dict]:
 def get_workflow_content(owner: str, repo: str, workflow_path: str) -> Optional[str]:
     """Fetch the content of a workflow file from the repository."""
     try:
-        # Remove leading .github/workflows/ if present to get the relative path
-        path = workflow_path.lstrip("/")
+        # Remove leading slash if present
+        path = workflow_path
+        while path.startswith("/"):
+            path = path[1:]
         url = f"{API}/repos/{owner}/{repo}/contents/{path}"
         data = api_get(url)
         # The content is base64 encoded
         content_b64 = data.get("content", "")
         if content_b64:
-            return base64.b64decode(content_b64).decode("utf-8")
+            # Remove whitespace that GitHub API may include
+            content_b64 = content_b64.replace("\n", "").replace(" ", "")
+            decoded_bytes = base64.b64decode(content_b64)
+            return decoded_bytes.decode("utf-8", errors="replace")
+    except (base64.binascii.Error, UnicodeDecodeError) as e:
+        print(f"Failed to decode workflow content for {workflow_path}: {e}")
     except Exception as e:
         print(f"Failed to fetch workflow content for {workflow_path}: {e}")
     return None
@@ -112,8 +119,8 @@ def workflow_executes_tests(workflow_content: str) -> bool:
         r'\bcargo\s+test\b',                  # cargo test
         r'\bdotnet\s+test\b',                 # dotnet test
         r'\bphpunit\b',                       # phpunit
-        r'\brspec\b',                         # rspec
-        r'\bminitest\b',                      # minitest
+        r'\brspec\s+(run|spec)\b',            # rspec run, rspec spec
+        r'\bruby\s+-s\s+rspec\b',             # ruby -S rspec (lowercase -s)
         r'\btest:coverage\b',                 # coverage commands
         r'\bcoverage\s+run\b',                # python coverage
     ]
