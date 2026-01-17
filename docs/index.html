@@ -451,7 +451,7 @@
 
                 setText('dora-lead-time', lead, ' h (median)');
                 setText('dora-deploy-frequency', freq, ' /day');
-                setText('dora-cfr', cfr == null ? 'N/A' : `${(cfr * 100).toFixed(1)}%`);
+                setText('dora-cfr', cfr != null ? `${(cfr * 100).toFixed(1)}%` : 'N/A');
                 setText('dora-ttr', ttr, ' h (avg)');
             } catch (e) {
                 // silent fail; table remains TBD

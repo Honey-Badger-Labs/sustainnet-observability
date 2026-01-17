@@ -101,7 +101,9 @@ def is_production_run(run: Dict, owner: str, repo: str) -> bool:
     has_prod = any(kw in text for kw in ("prod", "production"))
     has_deploy = any(kw in text for kw in ("deploy", "release", "deployment"))
     # Accept if both production and deployment indicators, OR if just production (tends to be explicit)
-    return has_prod or (has_deploy and ("main" in text or "master" in text))
+    # Check for main/master branch but use word boundaries to avoid false matches
+    has_main_branch = any(branch in text.split() for branch in ("main", "master"))
+    return has_prod or (has_deploy and has_main_branch)
 
 
 def compute_repo_metrics(owner: str, repo: str, token: Optional[str], window_days: int) -> Dict:

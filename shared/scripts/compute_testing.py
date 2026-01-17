@@ -133,12 +133,14 @@ def compute_repo_testing(owner: str, repo: str, window_days: int) -> Dict:
         if not wf_id:
             continue
         # Only count workflows that are actually test workflows
-        # Match patterns like "test.yml", "run-tests", "ci-test", etc, not "latest-deployment"
+        # Match patterns like "test.yml", "run-tests", "ci-test", etc.
+        # Exclude pure deployment workflows but keep "deploy-tests", "test-deploy", etc.
         test_keywords = ["test", "jest", "vitest", "playwright", "cypress", "e2e", "unit-test", "integration-test"]
-        is_test_workflow = any(
-            (keyword in wf_name and "deploy" not in wf_name) or 
-            (keyword in wf_path and "deploy" not in wf_path)
-            for keyword in test_keywords
+        has_test_keyword = any(keyword in wf_name or keyword in wf_path for keyword in test_keywords)
+        # It's a test workflow if it has test keywords and isn't ONLY about deployment
+        is_test_workflow = has_test_keyword and not (
+            ("deploy" in wf_name or "deploy" in wf_path) and 
+            not any(test_kw in wf_name or test_kw in wf_path for test_kw in ["test"])
         )
         if not is_test_workflow:
             continue
@@ -162,7 +164,7 @@ def compute_repo_testing(owner: str, repo: str, window_days: int) -> Dict:
     closed_non_bugs = [i for i in closed_issues if not any(l.get("name", "").lower() == "bug" for l in i.get("labels", []))]
     # Defect leakage = bugs found / work items delivered
     # Return None if no work was delivered in the window (can't calculate meaningful rate)
-    defect_leakage_rate = (len(opened_bugs) / len(closed_non_bugs)) if closed_non_bugs else None
+    defect_leakage_rate = (len(opened_bugs) / len(closed_non_bugs)) if len(closed_non_bugs) > 0 else None
 
     return {
         "coverage_overall": None,
