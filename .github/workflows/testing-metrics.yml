@@ -29,5 +29,10 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/data/testing.json
-          git commit -m "chore(metrics): update testing metrics JSON"
-          git push
+          if git diff --cached --quiet; then
+            echo "No changes in docs/data/testing.json; skipping commit."
+          else
+            git pull --rebase origin "${{ github.ref_name }}"
+            git commit -m "chore(metrics): update testing metrics JSON"
+            git push
+          fi

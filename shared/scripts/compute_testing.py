@@ -13,7 +13,7 @@ GitHub API. Coverage values are left null until CI exposes standardized coverage
 import os
 import json
 from datetime import datetime, timedelta, timezone
-from typing import Dict, Optional, List
+from typing import Dict, List
 import urllib.request
 
 API = "https://api.github.com"
@@ -37,50 +37,86 @@ if GITHUB_TOKEN:
 
 def api_get(url: str) -> Dict:
     req = urllib.request.Request(url, headers=HEADERS)
-    with urllib.request.urlopen(req) as resp:
-        return json.loads(resp.read().decode("utf-8"))
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            return json.loads(resp.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        print(f"HTTP error {e.code} fetching {url}: {e.reason}")
+        raise
+    except urllib.error.URLError as e:
+        print(f"URL error fetching {url}: {e.reason}")
+        raise
 
 
 def list_workflows(owner: str, repo: str) -> List[Dict]:
-    url = f"{API}/repos/{owner}/{repo}/actions/workflows"
-    data = api_get(url)
-    return data.get("workflows", [])
+    workflows: List[Dict] = []
+    page = 1
+    while True:
+        url = f"{API}/repos/{owner}/{repo}/actions/workflows?per_page=100&page={page}"
+        data = api_get(url)
+        page_workflows = data.get("workflows", [])
+        if not page_workflows:
+            break
+        workflows.extend(page_workflows)
+        if len(page_workflows) < 100:
+            break
+        page += 1
+    return workflows
 
 
 def list_runs_for_workflow(owner: str, repo: str, workflow_id: int, since: datetime) -> List[Dict]:
     # Note: Created_at filter not directly supported; we will filter client-side
-    url = f"{API}/repos/{owner}/{repo}/actions/workflows/{workflow_id}/runs?per_page=100"
-    data = api_get(url)
-    runs = data.get("workflow_runs", [])
-    out = []
-    for r in runs:
-        created = r.get("created_at")
-        if not created:
-            continue
-        created_dt = datetime.fromisoformat(created.replace("Z", TZ_Z))
-        if created_dt >= since:
-            out.append(r)
+    out: List[Dict] = []
+    page = 1
+    while True:
+        url = f"{API}/repos/{owner}/{repo}/actions/workflows/{workflow_id}/runs?per_page=100&page={page}"
+        data = api_get(url)
+        runs = data.get("workflow_runs", [])
+        if not runs:
+            break
+        for r in runs:
+            created = r.get("created_at")
+            if not created:
+                continue
+            created_dt = datetime.fromisoformat(created.replace("Z", TZ_Z))
+            if created_dt >= since:
+                out.append(r)
+        if len(runs) < 100:
+            break
+        page += 1
     return out
 
 
 def list_issues(owner: str, repo: str, state: str, since: datetime) -> List[Dict]:
     # Using /issues includes PRs; we filter out pull requests by presence of 'pull_request'
-    url = f"{API}/repos/{owner}/{repo}/issues?state={state}&per_page=100"
-    data = api_get(url)
-    items = []
-    for it in data:
-        if it.get("pull_request"):
-            continue
-        created = it.get("created_at")
-        updated = it.get("updated_at")
-        closed = it.get("closed_at")
-        # Use updated timestamps for windowing
-        ts = closed or updated or created
-        if not ts:
-            continue
-        dt = datetime.fromisoformat(ts.replace("Z", TZ_Z))
-        if dt >= since:
-            items.append(it)
+    items: List[Dict] = []
+    page = 1
+    while True:
+        url = f"{API}/repos/{owner}/{repo}/issues?state={state}&per_page=100&page={page}"
+        data = api_get(url)
+        # GitHub returns a list of issues for this endpoint
+        if not data:
+            break
+        page_has_recent = False
+        for it in data:
+            if it.get("pull_request"):
+                continue
+            created = it.get("created_at")
+            updated = it.get("updated_at")
+            closed = it.get("closed_at")
+            # Use updated timestamps for windowing
+            ts = closed or updated or created
+            if not ts:
+                continue
+            dt = datetime.fromisoformat(ts.replace("Z", TZ_Z))
+            if dt >= since:
+                page_has_recent = True
+                items.append(it)
+        # Issues are returned in descending order of recency; once a page has no
+        # items in the window, subsequent pages will be older as well.
+        if not page_has_recent:
+            break
+        page += 1
     return items
 
 
@@ -92,27 +128,35 @@ def compute_repo_testing(owner: str, repo: str, window_days: int) -> Dict:
     test_runs = 0
     for wf in workflows:
         wf_id = wf.get("id")
+        wf_name = (wf.get("name") or "").lower()
+        wf_path = (wf.get("path") or "").lower()
         if not wf_id:
+            continue
+        # Only count workflows that are actually test workflows
+        is_test_workflow = any(keyword in wf_name or keyword in wf_path 
+                               for keyword in ["test", "jest", "vitest", "playwright", "cypress", "e2e"])
+        if not is_test_workflow:
             continue
         runs = list_runs_for_workflow(owner, repo, wf_id, since)
         total_runs += len(runs)
+        # Count successful test runs
         for r in runs:
-            name = (r.get("name") or "").lower()
-            display_title = (r.get("display_title") or "").lower()
-            # Count runs that appear to execute tests
-            if (
-                "test" in name or "test" in display_title or
-                "jest" in name or "vitest" in name or "playwright" in name or
-                "coverage" in name or "coverage" in display_title
-            ):
+            # Only count runs that completed (success or failure are both valid test runs)
+            conclusion = (r.get("conclusion") or "").lower()
+            if conclusion in ["success", "failure"]:
                 test_runs += 1
 
     automation_rate = (test_runs / total_runs) if total_runs else 0.0
 
-    # Defect leakage approximation: bugs opened in window / closed issues in window
-    opened_bugs = [i for i in list_issues(owner, repo, state="open", since=since) if any(l.get("name", "").lower() == "bug" for l in i.get("labels", []))]
+    # Defect leakage: bugs found in production (opened recently) vs total closed features/fixes
+    # A more accurate measure: bugs labeled as 'bug' opened in window / closed issues that were enhancements or features
+    all_opened = list_issues(owner, repo, state="open", since=since)
+    opened_bugs = [i for i in all_opened if any(l.get("name", "").lower() == "bug" for l in i.get("labels", []))]
     closed_issues = list_issues(owner, repo, state="closed", since=since)
-    defect_leakage_rate = (len(opened_bugs) / max(len(closed_issues), 1)) if closed_issues else 0.0
+    # Filter closed issues to exclude bugs (we want features/enhancements closed)
+    closed_non_bugs = [i for i in closed_issues if not any(l.get("name", "").lower() == "bug" for l in i.get("labels", []))]
+    # Defect leakage = bugs found / work items delivered
+    defect_leakage_rate = (len(opened_bugs) / len(closed_non_bugs)) if closed_non_bugs else 0.0
 
     return {
         "coverage_overall": None,
