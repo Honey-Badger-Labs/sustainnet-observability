@@ -20,7 +20,7 @@ import json
 import os
 import statistics
 from datetime import datetime, timedelta, timezone
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 
 import requests
 
@@ -96,9 +96,14 @@ def is_production_run(run: Dict, owner: str, repo: str) -> bool:
     for t in tokens:
         if t.lower() in name or t.lower() in display_title or t.lower() in path:
             return True
-    # Fallback heuristic
+    # Fallback heuristic: look for production+deployment patterns
     text = " ".join([name, display_title, path])
-    return ("prod" in text or "production" in text) and ("deploy" in text or "release" in text)
+    has_prod = any(kw in text for kw in ("prod", "production"))
+    has_deploy = any(kw in text for kw in ("deploy", "release", "deployment"))
+    # Accept if both production and deployment indicators, OR if just production (tends to be explicit)
+    # Check for main/master branch but use word boundaries to avoid false matches
+    has_main_branch = any(branch in text.split() for branch in ("main", "master"))
+    return has_prod or (has_deploy and has_main_branch)
 
 
 def compute_repo_metrics(owner: str, repo: str, token: Optional[str], window_days: int) -> Dict:
@@ -131,6 +136,7 @@ def compute_repo_metrics(owner: str, repo: str, token: Optional[str], window_day
 
     # Lead time: from head commit author date to run updated_at
     lead_times: List[float] = []
+    skipped_commits = 0
     for r in successes:
         head_sha = r.get("head_sha")
         updated_at = r.get("updated_at") or r.get("created_at") or r.get("run_started_at")
@@ -138,6 +144,7 @@ def compute_repo_metrics(owner: str, repo: str, token: Optional[str], window_day
             continue
         commit = get_commit(owner, repo, head_sha, token)
         if not commit:
+            skipped_commits += 1
             continue
         commit_dt_s = (
             commit.get("commit", {})
@@ -154,6 +161,9 @@ def compute_repo_metrics(owner: str, repo: str, token: Optional[str], window_day
                 lead_times.append(hours)
         except Exception:
             continue
+    
+    if skipped_commits > 0:
+        print(f"Warning: Skipped {skipped_commits} deployments due to missing commit data for {owner}/{repo}")
 
     lead_median = round(statistics.median(lead_times), 2) if lead_times else None
 
@@ -181,7 +191,7 @@ def compute_repo_metrics(owner: str, repo: str, token: Optional[str], window_day
                         ttrs.append(delta_h)
                 break
 
-    ttr_avg = round(sum(ttrs) / len(ttrs), 2) if ttrs else None
+    ttr_avg = round(sum(ttrs) / len(ttrs), 2) if len(ttrs) > 0 else None
 
     return {
         "deployments": total,
