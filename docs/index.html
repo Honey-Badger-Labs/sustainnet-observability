@@ -342,7 +342,7 @@
                         <div class="grid grid-2" style="margin-top: 1rem;">
                             <div class="card">
                                 <h3>DORA Metrics</h3>
-                                <table style="width:100%; margin-top: 0.5rem;">
+                                <table style="width:100%; margin-top: 0.5rem;" id="dora-table">
                                     <thead>
                                         <tr>
                                             <th>Metric</th>
@@ -354,25 +354,25 @@
                                     <tbody>
                                         <tr>
                                             <td>Lead Time</td>
-                                            <td>TBD</td>
+                                            <td id="dora-lead-time">TBD</td>
                                             <td>&lt; 2 hours</td>
                                             <td><span class="badge">In Progress</span></td>
                                         </tr>
                                         <tr>
                                             <td>Deployment Frequency</td>
-                                            <td>TBD</td>
+                                            <td id="dora-deploy-frequency">TBD</td>
                                             <td>Daily</td>
                                             <td><span class="badge">In Progress</span></td>
                                         </tr>
                                         <tr>
                                             <td>Change Failure Rate</td>
-                                            <td>TBD</td>
+                                            <td id="dora-cfr">TBD</td>
                                             <td>&lt; 5%</td>
                                             <td><span class="badge">In Progress</span></td>
                                         </tr>
                                         <tr>
                                             <td>Time to Recovery</td>
-                                            <td>TBD</td>
+                                            <td id="dora-ttr">TBD</td>
                                             <td>&lt; 1 hour</td>
                                             <td><span class="badge">In Progress</span></td>
                                         </tr>
@@ -428,6 +428,32 @@
                 </section>
 
             </div>
+            <script>
+            (async function loadDora(){
+                try {
+                    const res = await fetch('./data/dora.json', { cache: 'no-store' });
+                    if (!res.ok) return;
+                    const data = await res.json();
+                    const overall = data.overall || {};
+                    const lead = overall.lead_time_hours_median;
+                    const freq = overall.deployment_frequency_per_day;
+                    const cfr = overall.change_failure_rate;
+                    const ttr = overall.time_to_restore_hours_avg;
+
+                    const setText = (id, v, suffix='') => {
+                        const el = document.getElementById(id);
+                        if (el) el.textContent = (v === null || v === undefined) ? 'N/A' : `${v}${suffix}`;
+                    };
+
+                    setText('dora-lead-time', lead, ' h (median)');
+                    setText('dora-deploy-frequency', freq, ' /day');
+                    setText('dora-cfr', cfr !== null && cfr !== undefined ? `${(cfr*100).toFixed(1)}%` : 'N/A');
+                    setText('dora-ttr', ttr, ' h (avg)');
+                } catch (e) {
+                    // silent fail; table remains TBD
+                }
+            })();
+            </script>
         </body>
         </html>
             </div>
