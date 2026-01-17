@@ -1,0 +1,11 @@
+{
+  "window_days": 30,
+  "generated_at": "2026-01-17T00:00:00Z",
+  "overall": {
+    "deployment_frequency_per_day": null,
+    "lead_time_hours_median": null,
+    "change_failure_rate": null,
+    "time_to_restore_hours_avg": null
+  },
+  "repos": {}
+}

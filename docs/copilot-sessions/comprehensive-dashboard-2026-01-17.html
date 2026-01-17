@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌍 SustainNet Comprehensive Observability Dashboard - 2026-01-17</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Monaco', 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            color: #e0e0e0;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        h1, h2, h3 { color: #00ff88; text-shadow: 0 0 10px rgba(0, 255, 136, 0.5); }
+        h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .timestamp { color: #888; font-size: 0.9rem; margin-bottom: 2rem; }
+        .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .metric-card { background: rgba(26, 31, 58, 0.7); border: 1px solid rgba(0, 255, 136, 0.3); border-radius: 8px; padding: 1.5rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); }
+        .metric-card h3 { font-size: 1rem; margin-bottom: 0.5rem; }
+        .metric-value { font-size: 2.5rem; font-weight: bold; margin: 0.5rem 0; }
+        .metric-label { color: #aaa; font-size: 0.9rem; }
+        .status-pass { color: #00ff88; }
+        .status-warn { color: #ffaa00; }
+        .status-fail { color: #ff4444; }
+        .status-block { color: #ff0066; }
+        .progress-bar { width: 100%; height: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 4px; overflow: hidden; margin-top: 0.5rem; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #00ff88, #00ccff); transition: width 0.3s ease; }
+        .agent-section { background: rgba(26, 31, 58, 0.5); border-left: 4px solid #00ff88; padding: 1.5rem; margin-bottom: 1.5rem; border-radius: 4px; }
+        .agent-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .agent-score { font-size: 2rem; font-weight: bold; }
+        .findings-list { list-style: none; margin-top: 1rem; }
+        .findings-list li { padding: 0.5rem 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .findings-list li:last-child { border-bottom: none; }
+        .priority-high { color: #ff4444; }
+        .priority-medium { color: #ffaa00; }
+        .priority-low { color: #00ccff; }
+        table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: rgba(26, 31, 58, 0.5); }
+        th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        th { background: rgba(0, 255, 136, 0.1); color: #00ff88; font-weight: bold; }
+        .banner { background: rgba(0, 255, 136, 0.1); border: 2px solid #00ff88; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; text-align: center; }
+        .emoji { font-size: 1.5rem; margin-right: 0.5rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌍 SustainNet Comprehensive Observability Dashboard</h1>
+        <div class="timestamp">📅 Generated: 2026-01-17 05:55:00 SAST (GMT+2)</div>
+        <div class="banner">
+            <h2>⚠️ SYSTEM STATUS: NEEDS ATTENTION</h2>
+            <p style="font-size: 1.2rem; margin-top: 0.5rem;">Overall Health Score: <span class="status-warn">45.6/100</span></p>
+            <p style="margin-top: 0.5rem;">4 Critical Blockers | 6 Warnings | 2 Passes</p>
+        </div>
+        <h2 style="margin-bottom: 1rem;">📊 Key Metrics Overview</h2>
+        <div class="metric-grid">
+            <div class="metric-card"><h3>🎯 Overall Health</h3><div class="metric-value status-warn">45.6</div><div class="metric-label">out of 100</div><div class="progress-bar"><div class="progress-fill" style="width: 45.6%;"></div></div></div>
+            <div class="metric-card"><h3>🛡️ Trustworthiness</h3><div class="metric-value status-pass">88.7</div><div class="metric-label">Measurement Agent Score</div><div class="progress-bar"><div class="progress-fill" style="width: 88.7%;"></div></div></div>
+            <div class="metric-card"><h3>✅ Quality Gate</h3><div class="metric-value status-pass">100</div><div class="metric-label">0 Issues in Analyzed Files</div><div class="progress-bar"><div class="progress-fill" style="width: 100%;"></div></div></div>
+            <div class="metric-card"><h3>🔒 Security Score</h3><div class="metric-value status-warn">56</div><div class="metric-label">6 Findings (4 Warnings)</div><div class="progress-bar"><div class="progress-fill" style="width: 56%;"></div></div></div>
+            <div class="metric-card"><h3>🧪 Test Coverage</h3><div class="metric-value status-fail">72%</div><div class="metric-label">Target: 80% (Gap: 8%)</div><div class="progress-bar"><div class="progress-fill" style="width: 72%;"></div></div></div>
+            <div class="metric-card"><h3>⚡ SRE Score</h3><div class="metric-value status-warn">75</div><div class="metric-label">Error Budget: 59% consumed</div><div class="progress-bar"><div class="progress-fill" style="width: 75%;"></div></div></div>
+        </div>
+        <h2 style="margin: 2rem 0 1rem;">🚨 Top Priorities (Ranked by Criticality)</h2>
+        <table>
+            <thead><tr><th>Priority</th><th>Action Item</th><th>Agent</th><th>Impact</th></tr></thead>
+            <tbody>
+                <tr><td><span class="priority-high">🔴 P0</span></td><td>Fix integration build failures and critical vulnerabilities</td><td>Integration</td><td>BLOCKER</td></tr>
+                <tr><td><span class="priority-high">🔴 P0</span></td><td>Complete architecture runway and threat model</td><td>Exploration</td><td>BLOCKER</td></tr>
+                <tr><td><span class="priority-high">🔴 P0</span></td><td>Define and validate IaC plan, rollback strategy, and SLOs</td><td>Deployment</td><td>BLOCKER</td></tr>
+                <tr><td><span class="priority-high">🔴 P0</span></td><td>Obtain business approval and enable feature flags</td><td>Release</td><td>BLOCKER</td></tr>
+                <tr><td><span class="priority-medium">🟡 P1</span></td><td>Increase test coverage from 72% to 80%+</td><td>Testing</td><td>HIGH</td></tr>
+                <tr><td><span class="priority-medium">🟡 P1</span></td><td>Reduce defect leakage from 10% to <3%</td><td>Testing</td><td>HIGH</td></tr>
+                <tr><td><span class="priority-medium">🟡 P1</span></td><td>Patch lodash vulnerability (CVE-2021-23337)</td><td>Security</td><td>HIGH</td></tr>
+                <tr><td><span class="priority-medium">🟡 P1</span></td><td>Address low psychological safety in team</td><td>Leadership</td><td>MEDIUM</td></tr>
+            </tbody>
+        </table>
+        <h2 style="margin: 2rem 0 1rem;">🤖 Agent Analysis Results</h2>
+        <div class="agent-section" style="border-left-color: #ffaa00;"><div class="agent-header"><h3>👥 Leadership Agent</h3><div class="agent-score status-warn">70/100</div></div><p><strong>Decision:</strong> <span class="status-warn">NEEDS ATTENTION</span></p><p><strong>Primary Framework:</strong> Inclusive Culture & Psychological Safety</p><ul class="findings-list"><li>⚠️ Low psychological safety requires immediate attention</li><li>⚠️ Low engagement indicates motivation/autonomy issues</li><li>ℹ️ 3 recent changes detected - SCARF model recommended</li></ul><p style="margin-top: 1rem;"><strong>Action Items:</strong> 5 coaching actions scheduled</p></div>
+        <div class="agent-section" style="border-left-color: #ff0066;"><div class="agent-header"><h3>🔍 Exploration Agent</h3><div class="agent-score status-block">30/100</div></div><p><strong>Decision:</strong> <span class="status-block">BLOCK</span></p><ul class="findings-list"><li>🚫 Architecture runway alignment required</li><li>🚫 Threat model must be completed</li><li>🚫 Success metrics not defined</li><li>⚠️ High architecture impact requires review</li></ul></div>
+        <div class="agent-section" style="border-left-color: #ff0066;"><div class="agent-header"><h3>🔄 Integration Agent</h3><div class="agent-score status-block">20/100</div></div><p><strong>Decision:</strong> <span class="status-block">BLOCK</span></p><ul class="findings-list"><li>🚫 Build did not succeed</li><li>🚫 Test coverage below 80%</li><li>🚫 Critical vulnerabilities present</li><li>⚠️ High vulnerabilities exceed threshold</li><li>⚠️ Code smells exceed threshold</li></ul></div>
+        <div class="agent-section" style="border-left-color: #ff0066;"><div class="agent-header"><h3>🚀 Deployment Agent</h3><div class="agent-score status-block">0/100</div></div><p><strong>Decision:</strong> <span class="status-block">BLOCK</span></p><ul class="findings-list"><li>🚫 IaC plan is invalid</li><li>🚫 Rollback not defined</li><li>🚫 SLO not defined</li><li>🚫 Critical DAST findings present</li><li>⚠️ Performance p95 exceeds threshold</li></ul></div>
+        <div class="agent-section" style="border-left-color: #ff0066;"><div class="agent-header"><h3>📦 Release Agent</h3><div class="agent-score status-block">0/100</div></div><p><strong>Decision:</strong> <span class="status-block">BLOCK</span></p><ul class="findings-list"><li>🚫 Feature flag not enabled</li><li>🚫 Business approval not present</li><li>🚫 Open P1/P2 incidents present</li><li>⚠️ Exposure plan not defined</li></ul></div>
+        <div class="agent-section" style="border-left-color: #00ff88;"><div class="agent-header"><h3>📊 Measurement Agent</h3><div class="agent-score status-pass">100/100</div></div><p><strong>Decision:</strong> <span class="status-pass">PASS</span></p><p><strong>Trustworthiness Grade:</strong> Trustworthy (88.7/100)</p><table style="margin-top: 1rem;"><thead><tr><th>Dimension</th><th>Score</th></tr></thead><tbody><tr><td>Security</td><td class="status-pass">94%</td></tr><tr><td>Quality</td><td class="status-warn">62%</td></tr><tr><td>Test Reliability</td><td class="status-pass">100%</td></tr><tr><td>Stability</td><td class="status-pass">100%</td></tr><tr><td>Compliance</td><td class="status-pass">100%</td></tr></tbody></table><p style="margin-top: 1rem;"><strong>Performance:</strong> 89.0/100</p></div>
+        <div class="agent-section" style="border-left-color: #00ff88;"><div class="agent-header"><h3>✨ Quality Agent</h3><div class="agent-score status-pass">100/100</div></div><p><strong>Decision:</strong> <span class="status-pass">PASS</span></p><p><strong>Files Analyzed:</strong> 3</p><ul class="findings-list"><li>✅ Blocker issues: 0 ≤ 0</li><li>✅ Critical issues: 0 ≤ 2</li><li>✅ Major issues: 0 ≤ 10</li><li>✅ Security hotspots: 0 ≤ 0</li></ul></div>
+        <div class="agent-section" style="border-left-color: #ffaa00;"><div class="agent-header"><h3>🔒 Security Agent</h3><div class="agent-score status-warn">56/100</div></div><p><strong>Decision:</strong> <span class="status-warn">WARN</span></p><ul class="findings-list"><li>⚠️ 1 high severity vulnerability: lodash CVE-2021-23337 (Prototype pollution)</li><li>ℹ️ 1 medium severity vulnerability</li><li>⚠️ 2 security headers missing: Content-Security-Policy, X-XSS-Protection</li><li>⚠️ MFA not enabled</li><li>⚠️ Weak password policy (8 chars, recommend 12)</li><li>ℹ️ Long session timeout (120 min vs 30 min recommended)</li></ul><p style="margin-top: 1rem;"><strong>Total Findings:</strong> 6 (4 warnings, 2 info)</p></div>
+        <div class="agent-section" style="border-left-color: #ffaa00;"><div class="agent-header"><h3>⚙️ SRE Agent</h3><div class="agent-score status-warn">75/100</div></div><p><strong>Decision:</strong> <span class="status-warn">WARN</span></p><p><strong>Service:</strong> family-meal-planner-api (production)</p><h4 style="margin-top: 1rem; color: #00ccff;">SLO Compliance:</h4><table><thead><tr><th>Metric</th><th>Current</th><th>Target</th><th>Status</th></tr></thead><tbody><tr><td>Availability</td><td class="status-pass">99.95%</td><td>99.9%</td><td>✅</td></tr><tr><td>Latency P99</td><td class="status-pass">320ms</td><td>500ms</td><td>✅</td></tr><tr><td>Error Rate</td><td class="status-pass">0.08%</td><td>0.1%</td><td>✅</td></tr></tbody></table><h4 style="margin-top: 1rem; color: #ffaa00;">Error Budget:</h4><ul class="findings-list"><li>Total: 43.2 min | Consumed: 25.5 min | Remaining: 17.7 min</li><li>⚠️ 59% consumed - projected to exhaust at current rate</li></ul><h4 style="margin-top: 1rem; color: #00ccff;">Incidents:</h4><p>3 total (0 critical, 1 high, 2 medium) | MTTR: 40 min | MTTD: 6.7 min</p><p style="margin-top: 1rem;"><strong>Runbook Coverage:</strong> 67% (8/12)</p></div>
+        <div class="agent-section" style="border-left-color: #ffaa00;"><div class="agent-header"><h3>🧪 Testing Agent</h3><div class="agent-score status-fail">0/100</div></div><p><strong>Decision:</strong> <span class="status-warn">WARN</span></p><p><strong>Project:</strong> family-meal-planner</p><h4 style="margin-top: 1rem; color: #ff4444;">Test Coverage (Below Threshold):</h4><table><thead><tr><th>Type</th><th>Current</th><th>Target</th><th>Status</th></tr></thead><tbody><tr><td>Overall</td><td class="status-fail">72%</td><td>80%</td><td>❌ Gap: 8%</td></tr><tr><td>Unit</td><td class="status-pass">85%</td><td>-</td><td>✅</td></tr><tr><td>Integration</td><td class="status-warn">60%</td><td>-</td><td>⚠️</td></tr><tr><td>E2E</td><td class="status-fail">45%</td><td>-</td><td>🔴</td></tr></tbody></table><h4 style="margin-top: 1rem; color: #ffaa00;">Critical Issues:</h4><ul class="findings-list"><li>🚫 2 critical files uncovered: authService.js, paymentController.js</li><li>⚠️ 2 flaky tests (15% and 8% failure rates)</li><li>⚠️ E2E success rate: 92% (target 95%)</li><li>🚫 Defect leakage rate: 10% (target <3%)</li><li>⚠️ Automation rate: 88.4% (target >95%)</li><li>⚠️ 3 manual test failures</li><li>⚠️ 1 untested feature flag: ff_core_onboarding_v2</li></ul><p style="margin-top: 1rem;"><strong>Total Findings:</strong> 16 (10 warnings, 6 info)</p></div>
+        <h2 style="margin: 2rem 0 1rem;">🔧 Repository Health</h2>
+        <table><thead><tr><th>Repository</th><th>Status</th><th>Issues</th></tr></thead><tbody><tr><td>sustainnet-observability</td><td class="status-fail">⚠️ Errors</td><td>5 workflow errors, invalid deployment env, missing AWS secrets</td></tr><tr><td>Family-Meal-Planner</td><td class="status-warn">⚠️ Code Issues</td><td>2 cognitive complexity, 1 exception handling, 2 optional chain issues</td></tr><tr><td>sustainnet-monorepo</td><td class="status-pass">✅ No Errors</td><td>-</td></tr><tr><td>sustainnet-website</td><td class="status-pass">✅ No Errors</td><td>-</td></tr></tbody></table>
+        <h2 style="margin: 2rem 0 1rem;">📈 DORA Metrics (Targets)</h2>
+        <table><thead><tr><th>Metric</th><th>Current</th><th>Target</th><th>Status</th></tr></thead><tbody><tr><td>Lead Time</td><td>TBD</td><td>< 2 hours</td><td>🔄 In Progress</td></tr><tr><td>Deployment Frequency</td><td>TBD</td><td>Daily</td><td>🔄 In Progress</td></tr><tr><td>Change Failure Rate</td><td>TBD</td><td>< 5%</td><td>🔄 In Progress</td></tr><tr><td>Time to Recovery</td><td>TBD</td><td>< 1 hour</td><td>🔄 In Progress</td></tr></tbody></table>
+        <div class="banner" style="margin-top: 3rem; background: rgba(0, 204, 255, 0.1); border-color: #00ccff;"><h3 style="color: #00ccff;">📊 Next Steps</h3><p style="margin-top: 1rem; text-align: left;">1. Address 4 critical blockers preventing deployment<br>2. Increase test coverage and reduce defect leakage<br>3. Patch security vulnerabilities (especially lodash)<br>4. Complete SLO definitions and IaC validation<br>5. Schedule team session for psychological safety<br>6. Review and update DORA metrics collection</p></div>
+        <div style="margin-top: 2rem; padding: 1rem; background: rgba(0, 0, 0, 0.3); border-radius: 4px; text-align: center; color: #888;"><p>Generated by SustainNet Observability Platform</p><p style="margin-top: 0.5rem; font-size: 0.8rem;">Honey Badger Labs | Continuous Delivery Pipeline</p></div>
+    </div>
+</body>
+</html>
