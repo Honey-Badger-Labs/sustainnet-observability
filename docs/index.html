@@ -312,10 +312,6 @@
 <body>
     <div class="container">
         <header>
-            <div>
-                <h1><span class="logo">🌍</span> SustainNet Collaboration OS</h1>
-                <span class="subtitle">Human + AI Partnership Dashboard</span>
-            </div>
             <div class="timestamp">
                 <div>Last updated: <span id="last-updated">-</span></div>
                 <div>🦡 Honey Badger Labs</div>
@@ -325,6 +321,7 @@
         <!-- Navigation Tabs -->
         <div class="tabs">
             <button class="tab active" onclick="showTab('overview')">📊 Overview</button>
+            <button class="tab" onclick="showTab('assessment')">🎯 Assessment</button>
             <button class="tab" onclick="showTab('health')">🏥 Repo Health</button>
             <button class="tab" onclick="showTab('agents')">🤖 CDP Agents</button>
             <button class="tab" onclick="showTab('decisions')">📋 Decisions</button>
@@ -461,6 +458,122 @@
                     </div>
                 </div>
             </div>
+        </div>
+        
+        <!-- ASSESSMENT TAB -->
+        <div id="assessment" class="tab-content">
+                <section style="margin-top: 0;">
+                    <div class="card">
+                        <h2>🎯 Comprehensive Assessment</h2>
+                        <p class="metric-label" style="margin-bottom: 0.75rem;">Latest comprehensive CDP agent assessment summary and metrics.</p>
+                        <div class="grid grid-3">
+                            <div class="card">
+                                <h3>Overall Health</h3>
+                                <div class="metric yellow">45.6</div>
+                                <div class="metric-label">Needs Attention</div>
+                                <div class="score-meter"><div class="score-meter-fill warning" style="width:45.6%"></div></div>
+                            </div>
+                            <div class="card">
+                                <h3>Trustworthiness</h3>
+                                <div class="metric green">88.7</div>
+                                <div class="metric-label">Measurement Agent Score</div>
+                                <div class="score-meter"><div class="score-meter-fill healthy" style="width:88.7%"></div></div>
+                            </div>
+                            <div class="card">
+                                <h3>Security Score</h3>
+                                <div class="metric yellow">56</div>
+                                <div class="metric-label">6 Findings (4 warnings)</div>
+                                <div class="score-meter"><div class="score-meter-fill warning" style="width:56%"></div></div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-2" style="margin-top: 1rem;">
+                            <div class="card">
+                                <h3>DORA Metrics</h3>
+                                <table style="width:100%; margin-top: 0.5rem;" id="dora-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Metric</th>
+                                            <th>Current</th>
+                                            <th>Target</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Lead Time</td>
+                                            <td id="dora-lead-time">TBD</td>
+                                            <td>&lt; 2 hours</td>
+                                            <td><span class="badge">In Progress</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Deployment Frequency</td>
+                                            <td id="dora-deploy-frequency">TBD</td>
+                                            <td>Daily</td>
+                                            <td><span class="badge">In Progress</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Change Failure Rate</td>
+                                            <td id="dora-cfr">TBD</td>
+                                            <td>&lt; 5%</td>
+                                            <td><span class="badge">In Progress</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Time to Recovery</td>
+                                            <td id="dora-ttr">TBD</td>
+                                            <td>&lt; 1 hour</td>
+                                            <td><span class="badge">In Progress</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <p class="metric-label">Targets per Observability OKRs; live collection wiring in progress.</p>
+                            </div>
+                            <div class="card">
+                                <h3>Testing Metrics</h3>
+                                <div class="grid">
+                                    <div>
+                                        <div class="metric" id="testing-overall-coverage">TBD</div>
+                                        <div class="metric-label">Overall Coverage (target 80%)</div>
+                                    </div>
+                                    <div>
+                                        <div class="metric" id="testing-unit-coverage">TBD</div>
+                                        <div class="metric-label">Unit Coverage</div>
+                                    </div>
+                                    <div>
+                                        <div class="metric" id="testing-integration-coverage">TBD</div>
+                                        <div class="metric-label">Integration Coverage</div>
+                                    </div>
+                                    <div>
+                                        <div class="metric" id="testing-e2e-coverage">TBD</div>
+                                        <div class="metric-label">E2E Coverage</div>
+                                    </div>
+                                    <div>
+                                        <div class="metric" id="testing-automation-rate">TBD</div>
+                                        <div class="metric-label">Automation Rate (target 95%)</div>
+                                    </div>
+                                    <div>
+                                        <div class="metric" id="testing-defect-leakage">TBD</div>
+                                        <div class="metric-label">Defect Leakage (target &lt;3%)</div>
+                                    </div>
+                                </div>
+                                <ul style="margin-top:0.75rem; padding-left:1rem;">
+                                    <li>2 critical files uncovered (authService.js, paymentController.js)</li>
+                                    <li>2 flaky tests (15% and 8% failure rates)</li>
+                                    <li>E2E success rate 92% (target 95%)</li>
+                                    <li>3 manual test failures; 1 untested feature flag</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="card" style="margin-top:1rem;">
+                            <h3>Full Assessment</h3>
+                            <p class="metric-label">Open the complete assessment dashboard for detailed agent-by-agent results and priorities.</p>
+                            <p style="margin-top:0.5rem;">
+                                <a href="./copilot-sessions/comprehensive-dashboard-2026-01-17.html" style="color: var(--accent-blue); text-decoration: none;">View Comprehensive Assessment Dashboard →</a>
+                            </p>
+                        </div>
+                    </div>
+                </section>
         </div>
         
         <!-- REPO HEALTH TAB -->

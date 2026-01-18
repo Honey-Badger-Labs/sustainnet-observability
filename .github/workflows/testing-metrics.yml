@@ -1,0 +1,38 @@
+name: Testing Metrics
+
+on:
+  schedule:
+    - cron: '0 2 * * *' # daily at 02:00 UTC
+  workflow_dispatch: {}
+
+jobs:
+  compute-testing:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -V
+      - name: Compute Testing metrics
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TESTING_WINDOW_DAYS: 30
+        run: |
+          python shared/scripts/compute_testing.py
+      - name: Commit metrics
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data/testing.json
+          if git diff --cached --quiet; then
+            echo "No changes in docs/data/testing.json; skipping commit."
+          else
+            git pull --rebase origin "${{ github.ref_name }}"
+            git commit -m "chore(metrics): update testing metrics JSON"
+            git push
+          fi
