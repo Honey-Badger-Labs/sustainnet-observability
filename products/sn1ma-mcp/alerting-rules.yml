@@ -1,0 +1,276 @@
+# Financial Guardrails Alert Rules for SN1MA-MCP
+# Based on FINANCIAL_GUARDRAILS.md - 10 Hard Rules
+
+groups:
+  - name: sn1ma_financial_guardrails
+    interval: 1m
+    rules:
+      # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      # RULE 1: Cost-to-Income Ratio < 20% (KILL at 25%)
+      # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      
+      - alert: CostToIncomeKILL
+        expr: sn1ma_cost_to_income_ratio > 25
+        for: 1m
+        labels:
+          severity: critical
+          category: financial
+          guardrail: rule_1
+          action: KILL_IMMEDIATELY
+        annotations:
+          summary: "🚨 KILL THRESHOLD: Cost-to-Income > 25%"
+          description: "Cost-to-Income ratio is {{ $value | printf \"%.1f\" }}% - ABOVE KILL THRESHOLD (25%). IMMEDIATE ACTION REQUIRED."
+          business_impact: "Unsustainable burn rate - company will run out of money"
+          action_required: |
+            EMERGENCY PROCEDURE (Execute < 24 hours):
+            1. HALT all new infrastructure spending
+            2. Scale down to FREE tier (Fly.io + Upstash)
+            3. Cancel all paid services
+            4. Notify founders immediately
+            5. Review FINANCIAL_GUARDRAILS.md Emergency Cut section
+          playbook: "See FINANCIAL_GUARDRAILS.md - Rule 1, Section 10 (Emergency Cut)"
+      
+      - alert: CostToIncomeCRITICAL
+        expr: sn1ma_cost_to_income_ratio > 20
+        for: 5m
+        labels:
+          severity: critical
+          category: financial
+          guardrail: rule_1
+        annotations:
+          summary: "🔴 CRITICAL: Cost-to-Income > 20%"
+          description: "Cost-to-Income ratio is {{ $value | printf \"%.1f\" }}% - ABOVE TARGET (20%). Approaching KILL threshold (25%)."
+          business_impact: "Financial health deteriorating - risk of unsustainable operations"
+          action_required: |
+            IMMEDIATE ACTIONS:
+            1. Review infrastructure costs (Fly.io, Upstash, Datadog)
+            2. Identify cost optimization opportunities
+            3. Pause non-essential features/services
+            4. Schedule emergency financial review meeting
+            5. Prepare contingency plan to scale down
+          playbook: "FINANCIAL_GUARDRAILS.md - Rule 1"
+      
+      - alert: CostToIncomeWARNING
+        expr: sn1ma_cost_to_income_ratio > 15
+        for: 10m
+        labels:
+          severity: warning
+          category: financial
+          guardrail: rule_1
+        annotations:
+          summary: "⚠️ WARNING: Cost-to-Income > 15%"
+          description: "Cost-to-Income ratio is {{ $value | printf \"%.1f\" }}% - ABOVE WARNING (15%). Target is < 10%."
+          business_impact: "Margins tightening - need to improve efficiency or increase revenue"
+          action_required: |
+            REVIEW ACTIONS:
+            1. Analyze cost trends (is it rising?)
+            2. Review recent infrastructure changes
+            3. Check if revenue is growing as expected
+            4. Identify waste/unused resources
+          playbook: "FINANCIAL_GUARDRAILS.md - Rule 1"
+      
+      # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      # RULE 2: Payback Period < 30 Days
+      # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      
+      - alert: PaybackPeriodCRITICAL
+        expr: sn1ma_payback_period > 30
+        for: 5m
+        labels:
+          severity: critical
+          category: financial
+          guardrail: rule_2
+        annotations:
+          summary: "🔴 CRITICAL: Payback period > 30 days"
+          description: "Current payback period is {{ $value | printf \"%.0f\" }} days - ABOVE MAXIMUM (30 days)"
+          business_impact: "Infrastructure investment not recovering fast enough - cash flow risk"
+          action_required: |
+            IMMEDIATE ACTIONS:
+            1. REJECT any new infrastructure investments
+            2. Review current spend vs. profit
+            3. Identify ways to reduce infrastructure cost
+            4. Accelerate revenue growth initiatives
+            5. Consider downgrading infrastructure tier
+          playbook: "FINANCIAL_GUARDRAILS.md - Rule 2"
+      
+      - alert: PaybackPeriodWARNING
+        expr: sn1ma_payback_period > 14
+        for: 10m
+        labels:
+          severity: warning
+          category: financial
+          guardrail: rule_2
+        annotations:
+          summary: "⚠️ WARNING: Payback period > 14 days"
+          description: "Current payback period is {{ $value | printf \"%.0f\" }} days - ABOVE TARGET (7 days)"
+          business_impact: "Slower than ideal capital recovery - monitor closely"
+          action_required: |
+            REVIEW ACTIONS:
+            1. Calculate ROI on recent infrastructure changes
+            2. Review if new spend is justified
+            3. Track trend (improving or worsening?)
+          playbook: "FINANCIAL_GUARDRAILS.md - Rule 2"
+      
+      # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      # RULE 3: Spending Cap Enforcement
+      # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      
+      - alert: SpendingCapEXCEEDED
+        expr: sn1ma_infrastructure_cost_monthly > sn1ma_spending_cap
+        for: 1m
+        labels:
+          severity: critical
+          category: financial
+          guardrail: rule_3
+          action: HALT_SPENDING
+        annotations:
+          summary: "🚨 EXCEEDED: Spending cap breached"
+          description: "Infrastructure cost (R{{ $value | printf \"%.0f\" }}) EXCEEDS spending cap (R{{ query \"sn1ma_spending_cap\" | first | value | printf \"%.0f\" }})"
+          business_impact: "Over-budget - financial discipline violated"
+          action_required: |
+            IMMEDIATE HALT:
+            1. STOP all new infrastructure provisioning
+            2. Review what caused the overage
+            3. Identify services to scale down/pause
+            4. Get approval before ANY new spend
+            5. Update spending cap if revenue increased
+          playbook: "FINANCIAL_GUARDRAILS.md - Rule 3"
+      
+      - alert: SpendingCapWARNING
+        expr: sn1ma_infrastructure_cost_monthly > (sn1ma_spending_cap * 0.85)
+        for: 5m
+        labels:
+          severity: warning
+          category: financial
+          guardrail: rule_3
+        annotations:
+          summary: "⚠️ WARNING: Approaching spending cap (85%)"
+          description: "Infrastructure cost (R{{ $value | printf \"%.0f\" }}) at 85% of cap (R{{ query \"sn1ma_spending_cap\" | first | value | printf \"%.0f\" }})"
+          business_impact: "Nearing budget limit - need to monitor closely"
+          action_required: |
+            PROACTIVE ACTIONS:
+            1. Review projected month-end spend
+            2. Identify any unexpected cost increases
+            3. Prepare to optimize if approaching limit
+            4. Check if revenue growth justifies higher cap
+          playbook: "FINANCIAL_GUARDRAILS.md - Rule 3"
+      
+      # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      # RULE 5: Affordable Loss Framework (R1,000/month test budget)
+      # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      
+      - alert: AffordableLossEXCEEDED
+        expr: sn1ma_infrastructure_cost_monthly > 1000 and sn1ma_revenue_monthly == 0
+        for: 1m
+        labels:
+          severity: critical
+          category: financial
+          guardrail: rule_5
+        annotations:
+          summary: "🚨 EXCEEDED: Affordable loss limit (R1,000/month)"
+          description: "Pre-revenue spending (R{{ $value | printf \"%.0f\" }}) EXCEEDS affordable loss budget (R1,000)"
+          business_impact: "Spending beyond what we can afford to lose - risk to personal finances"
+          action_required: |
+            IMMEDIATE ACTIONS:
+            1. Cut back to free tier immediately
+            2. This is test budget - not production budget
+            3. Do NOT scale infrastructure until revenue exists
+            4. Review what caused the overspend
+          playbook: "FINANCIAL_GUARDRAILS.md - Rule 5"
+      
+      # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      # Customer Milestones (Positive Signals)
+      # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      
+      - alert: FirstPayingCustomer
+        expr: sn1ma_paying_customers_total == 1
+        for: 1m
+        labels:
+          severity: info
+          category: milestone
+          milestone: first_customer
+        annotations:
+          summary: "🎉 MILESTONE: First Paying Customer!"
+          description: "SN1MA-MCP just acquired its first paying customer"
+          business_impact: "Product-market fit validation - begin scaling operations"
+          action_required: |
+            CELEBRATION + ACTION:
+            1. Celebrate the win! 🎊
+            2. Update spending cap to R150/month (1-4 customers)
+            3. Begin light production infrastructure (Option 2)
+            4. Focus on customer success and retention
+            5. Document what worked to acquire this customer
+      
+      - alert: FivePayingCustomers
+        expr: sn1ma_paying_customers_total == 5
+        for: 1m
+        labels:
+          severity: info
+          category: milestone
+          milestone: five_customers
+        annotations:
+          summary: "🎉 MILESTONE: 5 Paying Customers!"
+          description: "SN1MA-MCP has reached 5 paying customers"
+          business_impact: "Strong validation - ready for growth phase"
+          action_required: |
+            SCALE UP:
+            1. Update spending cap to R300/month (5-9 customers)
+            2. Consider mid-tier infrastructure (Option 2.5)
+            3. Invest in customer success processes
+            4. Begin marketing optimization
+      
+      - alert: TenPayingCustomers
+        expr: sn1ma_paying_customers_total == 10
+        for: 1m
+        labels:
+          severity: info
+          category: milestone
+          milestone: ten_customers
+        annotations:
+          summary: "🎉 MILESTONE: 10 Paying Customers!"
+          description: "SN1MA-MCP has reached 10 paying customers"
+          business_impact: "Product-market fit confirmed - accelerate growth"
+          action_required: |
+            GROWTH MODE:
+            1. Update spending cap to R500/month (10-19 customers)
+            2. Scale to full production infrastructure (Option 3)
+            3. Hire support/customer success help
+            4. Invest in marketing and sales
+      
+      # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      # Revenue Health Indicators
+      # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      
+      - alert: ProfitMarginLow
+        expr: sn1ma_profit_margin < 50
+        for: 10m
+        labels:
+          severity: warning
+          category: financial
+        annotations:
+          summary: "⚠️ WARNING: Profit margin < 50%"
+          description: "Profit margin is {{ $value | printf \"%.1f\" }}% - below healthy SaaS level (should be 80-95%)"
+          business_impact: "Low margins indicate cost inefficiency or pricing issues"
+          action_required: |
+            INVESTIGATE:
+            1. Is infrastructure over-provisioned?
+            2. Are we under-pricing the product?
+            3. Review cost per customer
+            4. Benchmark against industry standards (SaaS should be 80-95% margin)
+      
+      - alert: ZeroRevenue
+        expr: sn1ma_revenue_monthly == 0 and sn1ma_infrastructure_cost_monthly > 0
+        for: 1h
+        labels:
+          severity: info
+          category: financial
+        annotations:
+          summary: "ℹ️ INFO: Spending without revenue"
+          description: "Infrastructure cost is R{{ query \"sn1ma_infrastructure_cost_monthly\" | first | value | printf \"%.0f\" }} but revenue is R0"
+          business_impact: "Pre-revenue stage - ensure spending stays within affordable loss budget (R1,000/month max)"
+          action_required: |
+            PRE-REVENUE CHECKLIST:
+            1. Confirm spending is < R1,000/month (affordable loss)
+            2. Are we testing product-market fit?
+            3. When do we expect first customer?
+            4. Is current burn sustainable?

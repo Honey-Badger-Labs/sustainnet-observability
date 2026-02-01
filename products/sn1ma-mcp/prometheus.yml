@@ -1,0 +1,45 @@
+global:
+  scrape_interval: 30s
+  evaluation_interval: 30s
+  external_labels:
+    product: 'sn1ma-mcp'
+    environment: 'production'
+
+# Load alert rules
+rule_files:
+  - 'alerting-rules.yml'
+
+# Scrape configurations
+scrape_configs:
+  # SN1MA-MCP HRAIM Backend
+  - job_name: 'sn1ma-mcp-hraim'
+    scrape_interval: 30s
+    static_configs:
+      - targets: ['localhost:9001']  # Local development
+        labels:
+          service: 'hraim'
+          tier: 'backend'
+      # Production endpoint (uncomment when deployed)
+      # - targets: ['api.sn1ma.app:9001']
+      #   labels:
+      #     service: 'hraim'
+      #     tier: 'backend'
+    metrics_path: '/metrics'
+    scheme: http
+
+  # SN1MA-MCP Landing Page (future)
+  - job_name: 'sn1ma-mcp-landing'
+    scrape_interval: 60s
+    static_configs:
+      - targets: ['localhost:3000']
+        labels:
+          service: 'landing'
+          tier: 'frontend'
+    metrics_path: '/api/metrics'
+    scheme: http
+
+# Alertmanager configuration (configure when setting up notifications)
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets: ['localhost:9093']

@@ -1,0 +1,114 @@
+{
+  "agent": {
+    "metrics_collection_interval": 60,
+    "run_as_user": "root"
+  },
+  "logs": {
+    "logs_collected": {
+      "files": {
+        "collect_list": [
+          {
+            "file_path": "/var/log/aiwf/sustainbot.log",
+            "log_group_name": "/aiwf/sustainbot",
+            "log_stream_name": "{instance_id}",
+            "retention_in_days": 90,
+            "timezone": "UTC"
+          },
+          {
+            "file_path": "/var/log/aiwf/audit.jsonl",
+            "log_group_name": "/aiwf/audit",
+            "log_stream_name": "{instance_id}",
+            "retention_in_days": 90,
+            "timezone": "UTC"
+          },
+          {
+            "file_path": "/var/log/aiwf/openclaw/*.log",
+            "log_group_name": "/aiwf/openclaw",
+            "log_stream_name": "{instance_id}",
+            "retention_in_days": 30,
+            "timezone": "UTC"
+          }
+        ]
+      }
+    }
+  },
+  "metrics": {
+    "namespace": "AIWF/Production",
+    "metrics_collected": {
+      "cpu": {
+        "measurement": [
+          {
+            "name": "cpu_usage_idle",
+            "rename": "CPU_IDLE",
+            "unit": "Percent"
+          },
+          {
+            "name": "cpu_usage_iowait",
+            "rename": "CPU_IOWAIT",
+            "unit": "Percent"
+          }
+        ],
+        "metrics_collection_interval": 60,
+        "totalcpu": false
+      },
+      "disk": {
+        "measurement": [
+          {
+            "name": "used_percent",
+            "rename": "DISK_USED",
+            "unit": "Percent"
+          }
+        ],
+        "metrics_collection_interval": 60,
+        "resources": [
+          "*"
+        ]
+      },
+      "diskio": {
+        "measurement": [
+          {
+            "name": "io_time"
+          },
+          {
+            "name": "read_bytes",
+            "rename": "DISK_READ_BYTES"
+          },
+          {
+            "name": "write_bytes",
+            "rename": "DISK_WRITE_BYTES"
+          }
+        ],
+        "metrics_collection_interval": 60,
+        "resources": [
+          "*"
+        ]
+      },
+      "mem": {
+        "measurement": [
+          {
+            "name": "mem_used_percent",
+            "rename": "MEMORY_USED",
+            "unit": "Percent"
+          }
+        ],
+        "metrics_collection_interval": 60
+      },
+      "netstat": {
+        "measurement": [
+          {
+            "name": "tcp_established"
+          },
+          {
+            "name": "tcp_time_wait"
+          }
+        ],
+        "metrics_collection_interval": 60
+      },
+      "statsd": {
+        "metrics_aggregation_interval": 60,
+        "metrics_collection_interval": 10,
+        "service_address": ":8125"
+      }
+    }
+  }
+}

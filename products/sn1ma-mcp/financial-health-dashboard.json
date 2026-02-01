@@ -1,0 +1,502 @@
+{
+  "dashboard": {
+    "title": "SN1MA-MCP: Financial Health Dashboard",
+    "description": "Real-time financial guardrails monitoring - Cost-to-Income, ROI, spending caps",
+    "tags": ["sn1ma", "financial", "finops", "guardrails"],
+    "refresh": "30s",
+    "time": {
+      "from": "now-30d",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "💰 Cost-to-Income Ratio (Target: < 10%)",
+        "type": "gauge",
+        "gridPos": { "h": 8, "w": 8, "x": 0, "y": 0 },
+        "targets": [
+          {
+            "expr": "(sum(sn1ma_infrastructure_cost_monthly) / sum(sn1ma_revenue_monthly)) * 100",
+            "refId": "A",
+            "legendFormat": "Cost-to-Income %"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "green", "value": 0 },
+                { "color": "yellow", "value": 10 },
+                { "color": "orange", "value": 15 },
+                { "color": "red", "value": 20 }
+              ]
+            },
+            "min": 0,
+            "max": 30,
+            "unit": "percent"
+          }
+        },
+        "options": {
+          "showThresholdLabels": true,
+          "showThresholdMarkers": true
+        }
+      },
+      {
+        "id": 2,
+        "title": "📊 Monthly Revenue vs. Infrastructure Cost",
+        "type": "graph",
+        "gridPos": { "h": 8, "w": 16, "x": 8, "y": 0 },
+        "targets": [
+          {
+            "expr": "sum(sn1ma_revenue_monthly)",
+            "refId": "A",
+            "legendFormat": "Revenue (ZAR)"
+          },
+          {
+            "expr": "sum(sn1ma_infrastructure_cost_monthly)",
+            "refId": "B",
+            "legendFormat": "Infrastructure Cost (ZAR)"
+          },
+          {
+            "expr": "sum(sn1ma_revenue_monthly) - sum(sn1ma_infrastructure_cost_monthly)",
+            "refId": "C",
+            "legendFormat": "Profit (ZAR)"
+          }
+        ],
+        "yaxes": [
+          {
+            "label": "ZAR",
+            "format": "currencyZAR"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "🎯 Profit Margin %",
+        "type": "stat",
+        "gridPos": { "h": 4, "w": 6, "x": 0, "y": 8 },
+        "targets": [
+          {
+            "expr": "((sum(sn1ma_revenue_monthly) - sum(sn1ma_infrastructure_cost_monthly)) / sum(sn1ma_revenue_monthly)) * 100",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "red", "value": 0 },
+                { "color": "yellow", "value": 50 },
+                { "color": "green", "value": 80 }
+              ]
+            },
+            "unit": "percent"
+          }
+        }
+      },
+      {
+        "id": 4,
+        "title": "👥 Paying Customers",
+        "type": "stat",
+        "gridPos": { "h": 4, "w": 6, "x": 6, "y": 8 },
+        "targets": [
+          {
+            "expr": "sum(sn1ma_paying_customers_total)",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "red", "value": 0 },
+                { "color": "yellow", "value": 1 },
+                { "color": "green", "value": 5 }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 5,
+        "title": "💸 Monthly Recurring Revenue (MRR)",
+        "type": "stat",
+        "gridPos": { "h": 4, "w": 6, "x": 12, "y": 8 },
+        "targets": [
+          {
+            "expr": "sum(sn1ma_revenue_monthly)",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "currencyZAR",
+            "decimals": 0,
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "red", "value": 0 },
+                { "color": "yellow", "value": 900 },
+                { "color": "green", "value": 4500 }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 6,
+        "title": "🏗️ Infrastructure Cost (Monthly)",
+        "type": "stat",
+        "gridPos": { "h": 4, "w": 6, "x": 18, "y": 8 },
+        "targets": [
+          {
+            "expr": "sum(sn1ma_infrastructure_cost_monthly)",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "currencyZAR",
+            "decimals": 0,
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "green", "value": 0 },
+                { "color": "yellow", "value": 150 },
+                { "color": "orange", "value": 300 },
+                { "color": "red", "value": 500 }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 7,
+        "title": "🚨 Guardrails Status",
+        "type": "table",
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
+        "targets": [
+          {
+            "expr": "sn1ma_guardrail_status",
+            "refId": "A",
+            "format": "table"
+          }
+        ],
+        "fieldConfig": {
+          "overrides": [
+            {
+              "matcher": { "id": "byName", "options": "Status" },
+              "properties": [
+                {
+                  "id": "custom.displayMode",
+                  "value": "color-background"
+                },
+                {
+                  "id": "mappings",
+                  "value": [
+                    { "type": "value", "value": "OK", "color": "green" },
+                    { "type": "value", "value": "WARNING", "color": "yellow" },
+                    { "type": "value", "value": "CRITICAL", "color": "red" }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {},
+              "indexByName": {
+                "guardrail": 0,
+                "current_value": 1,
+                "threshold": 2,
+                "status": 3
+              },
+              "renameByName": {
+                "guardrail": "Guardrail",
+                "current_value": "Current Value",
+                "threshold": "Threshold",
+                "status": "Status"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "📈 Revenue Growth (MoM)",
+        "type": "graph",
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
+        "targets": [
+          {
+            "expr": "rate(sn1ma_revenue_monthly[30d]) * 100",
+            "refId": "A",
+            "legendFormat": "Revenue Growth %"
+          }
+        ],
+        "yaxes": [
+          {
+            "label": "Growth %",
+            "format": "percent"
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "title": "💳 Revenue by Tier",
+        "type": "piechart",
+        "gridPos": { "h": 8, "w": 8, "x": 0, "y": 20 },
+        "targets": [
+          {
+            "expr": "sum by (tier) (sn1ma_revenue_by_tier)",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "legend": {
+            "displayMode": "table",
+            "placement": "right",
+            "values": ["value", "percent"]
+          }
+        }
+      },
+      {
+        "id": 10,
+        "title": "📊 Spending Cap Compliance",
+        "type": "bargauge",
+        "gridPos": { "h": 8, "w": 8, "x": 8, "y": 20 },
+        "targets": [
+          {
+            "expr": "(sum(sn1ma_infrastructure_cost_monthly) / sum(sn1ma_spending_cap)) * 100",
+            "refId": "A",
+            "legendFormat": "% of Spending Cap"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "min": 0,
+            "max": 100,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "green", "value": 0 },
+                { "color": "yellow", "value": 70 },
+                { "color": "orange", "value": 85 },
+                { "color": "red", "value": 95 }
+              ]
+            },
+            "unit": "percent"
+          }
+        }
+      },
+      {
+        "id": 11,
+        "title": "⏱️ Payback Period (Days)",
+        "type": "stat",
+        "gridPos": { "h": 8, "w": 8, "x": 16, "y": 20 },
+        "targets": [
+          {
+            "expr": "(sum(sn1ma_infrastructure_cost_monthly) / (sum(sn1ma_revenue_monthly) - sum(sn1ma_infrastructure_cost_monthly))) * 30",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "d",
+            "decimals": 1,
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "green", "value": 0 },
+                { "color": "yellow", "value": 7 },
+                { "color": "orange", "value": 14 },
+                { "color": "red", "value": 30 }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 12,
+        "title": "📉 Churn Rate (%)",
+        "type": "stat",
+        "gridPos": { "h": 4, "w": 6, "x": 0, "y": 28 },
+        "targets": [
+          {
+            "expr": "(sum(rate(sn1ma_customers_churned[30d])) / sum(sn1ma_paying_customers_total)) * 100",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "decimals": 1,
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "green", "value": 0 },
+                { "color": "yellow", "value": 5 },
+                { "color": "orange", "value": 10 },
+                { "color": "red", "value": 15 }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 13,
+        "title": "🎯 Customer Acquisition Cost (CAC)",
+        "type": "stat",
+        "gridPos": { "h": 4, "w": 6, "x": 6, "y": 28 },
+        "targets": [
+          {
+            "expr": "sum(sn1ma_marketing_spend_monthly) / sum(increase(sn1ma_paying_customers_total[30d]))",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "currencyZAR",
+            "decimals": 0,
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "green", "value": 0 },
+                { "color": "yellow", "value": 300 },
+                { "color": "orange", "value": 450 },
+                { "color": "red", "value": 600 }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 14,
+        "title": "💰 Lifetime Value (LTV)",
+        "type": "stat",
+        "gridPos": { "h": 4, "w": 6, "x": 12, "y": 28 },
+        "targets": [
+          {
+            "expr": "avg(sn1ma_customer_ltv)",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "currencyZAR",
+            "decimals": 0,
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "red", "value": 0 },
+                { "color": "yellow", "value": 2700 },
+                { "color": "green", "value": 5400 }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 15,
+        "title": "📊 LTV:CAC Ratio (Target: > 3)",
+        "type": "stat",
+        "gridPos": { "h": 4, "w": 6, "x": 18, "y": 28 },
+        "targets": [
+          {
+            "expr": "avg(sn1ma_customer_ltv) / (sum(sn1ma_marketing_spend_monthly) / sum(increase(sn1ma_paying_customers_total[30d])))",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "decimals": 1,
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "red", "value": 0 },
+                { "color": "yellow", "value": 2 },
+                { "color": "green", "value": 3 }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 16,
+        "title": "⚠️ Financial Alerts (Last 7 Days)",
+        "type": "logs",
+        "gridPos": { "h": 8, "w": 24, "x": 0, "y": 32 },
+        "targets": [
+          {
+            "expr": "{app=\"sn1ma-mcp\", level=~\"warning|critical\", category=\"financial\"}",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "showTime": true,
+          "showLabels": true,
+          "sortOrder": "Descending"
+        }
+      }
+    ],
+    "annotations": {
+      "list": [
+        {
+          "name": "Customer Milestones",
+          "datasource": "Prometheus",
+          "enable": true,
+          "expr": "changes(sn1ma_paying_customers_total[5m]) > 0",
+          "tagKeys": "milestone",
+          "textFormat": "{{milestone}}",
+          "titleFormat": "New Customer",
+          "iconColor": "green"
+        },
+        {
+          "name": "Spending Cap Alerts",
+          "datasource": "Prometheus",
+          "enable": true,
+          "expr": "sn1ma_spending_cap_exceeded > 0",
+          "tagKeys": "alert",
+          "textFormat": "{{alert}}",
+          "titleFormat": "Spending Cap Alert",
+          "iconColor": "red"
+        }
+      ]
+    }
+  }
+}
