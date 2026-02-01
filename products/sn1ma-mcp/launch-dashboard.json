@@ -1,0 +1,204 @@
+{
+  "dashboard": {
+    "title": "SN1MA-MCP: Launch Dashboard",
+    "panels": [
+      {
+        "id": 1,
+        "title": "🚀 Days Since Last Real User Interaction",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sn1ma_days_since_last_user_interaction",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "green", "value": null },
+                { "color": "yellow", "value": 1 },
+                { "color": "orange", "value": 3 },
+                { "color": "red", "value": 7 }
+              ]
+            },
+            "unit": "d",
+            "custom": {
+              "hideFrom": {
+                "tooltip": false,
+                "viz": false,
+                "legend": false
+              }
+            }
+          }
+        },
+        "options": {
+          "orientation": "auto",
+          "textMode": "auto",
+          "colorMode": "background",
+          "graphMode": "area",
+          "justifyMode": "auto"
+        }
+      },
+      {
+        "id": 2,
+        "title": "👥 Total Users (All Time)",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sn1ma_total_users",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "red", "value": null },
+                { "color": "yellow", "value": 5 },
+                { "color": "green", "value": 10 }
+              ]
+            },
+            "unit": "short"
+          }
+        }
+      },
+      {
+        "id": 3,
+        "title": "💰 Revenue (This Month)",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sn1ma_monthly_revenue_zar",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "red", "value": null },
+                { "color": "yellow", "value": 1000 },
+                { "color": "green", "value": 5000 }
+              ]
+            },
+            "unit": "currencyZAR"
+          }
+        }
+      },
+      {
+        "id": 4,
+        "title": "📊 Daily Active Users (Rolling 7-Day)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "sn1ma_daily_active_users",
+            "legendFormat": "DAU",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "short",
+            "label": "Users",
+            "show": true
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "🎯 Signups by Day",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "increase(sn1ma_signups_total[1d])",
+            "legendFormat": "New Signups",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {
+            "format": "short",
+            "label": "Signups",
+            "show": true
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "💳 Conversion Rate (Free → Paid)",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "sn1ma_paid_subscriptions / sn1ma_total_users * 100",
+            "refId": "A"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "red", "value": null },
+                { "color": "yellow", "value": 5 },
+                { "color": "green", "value": 10 }
+              ]
+            },
+            "unit": "percent"
+          }
+        }
+      },
+      {
+        "id": 7,
+        "title": "⚠️ Blocked Items",
+        "type": "text",
+        "options": {
+          "content": "## Critical Blockers\n\n- [ ] Stripe integration complete\n- [ ] Landing page deployed\n- [ ] Production deployment live\n- [ ] First user signup\n- [ ] First payment received\n\n## Check Status\n```bash\nbash /Users/jakes/SustainNet/SN1MA-MCP/demo.sh\n```"
+        }
+      },
+      {
+        "id": 8,
+        "title": "🐛 Errors (24h)",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(sn1ma_errors_total[24h])",
+            "legendFormat": "Error Rate",
+            "refId": "A"
+          }
+        ]
+      }
+    ],
+    "refresh": "30s",
+    "schemaVersion": 30,
+    "style": "dark",
+    "tags": ["sn1ma", "launch", "metrics"],
+    "templating": {
+      "list": []
+    },
+    "time": {
+      "from": "now-30d",
+      "to": "now"
+    },
+    "timepicker": {
+      "refresh_intervals": ["10s", "30s", "1m", "5m", "15m", "30m", "1h", "2h", "1d"]
+    },
+    "uid": "sn1ma-launch",
+    "version": 1
+  }
+}

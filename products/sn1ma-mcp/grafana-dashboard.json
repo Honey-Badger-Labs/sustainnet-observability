@@ -1,0 +1,296 @@
+{
+  "dashboard": {
+    "id": null,
+    "uid": "sn1ma-governance",
+    "title": "SN1MA-MCP AI Governance Dashboard",
+    "tags": ["governance", "ots", "ai", "sn1ma"],
+    "timezone": "browser",
+    "schemaVersion": 36,
+    "version": 1,
+    "refresh": "30s",
+    "time": {
+      "from": "now-24h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "AI Footprint (Last 24h)",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0},
+        "targets": [
+          {
+            "expr": "sum(increase(sn1ma_aim_requests_total[24h]))",
+            "legendFormat": "Total AI Interactions"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": null, "color": "green"},
+                {"value": 1000, "color": "yellow"},
+                {"value": 5000, "color": "red"}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "Human Override Rate",
+        "type": "gauge",
+        "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0},
+        "targets": [
+          {
+            "expr": "sn1ma_human_override_rate",
+            "legendFormat": "Override Rate"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "min": 0,
+            "max": 1,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": 0, "color": "green"},
+                {"value": 0.3, "color": "yellow"},
+                {"value": 0.5, "color": "red"}
+              ]
+            },
+            "unit": "percentunit"
+          }
+        }
+      },
+      {
+        "id": 3,
+        "title": "AIM Validation Failures",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0},
+        "targets": [
+          {
+            "expr": "sum(increase(sn1ma_aim_validation_failures_total[1h]))",
+            "legendFormat": "Failures (Last Hour)"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": null, "color": "green"},
+                {"value": 5, "color": "yellow"},
+                {"value": 10, "color": "red"}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 4,
+        "title": "Prescriptive Language Blocks",
+        "type": "stat",
+        "gridPos": {"h": 4, "w": 6, "x": 18, "y": 0},
+        "targets": [
+          {
+            "expr": "sum(increase(sn1ma_prescriptive_language_blocks_total[1h]))",
+            "legendFormat": "Blocks (Last Hour)"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "thresholds"},
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": null, "color": "green"},
+                {"value": 3, "color": "yellow"},
+                {"value": 10, "color": "red"}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 5,
+        "title": "AI Requests by DRAG Mode (24h)",
+        "type": "timeseries",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4},
+        "targets": [
+          {
+            "expr": "sum by (drag_mode) (increase(sn1ma_aim_requests_total[5m]))",
+            "legendFormat": "{{drag_mode}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "smooth",
+              "fillOpacity": 20
+            }
+          }
+        }
+      },
+      {
+        "id": 6,
+        "title": "Validation Failures by Reason",
+        "type": "piechart",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4},
+        "targets": [
+          {
+            "expr": "sum by (failure_reason) (sn1ma_aim_validation_failures_total)",
+            "legendFormat": "{{failure_reason}}"
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Requests by Actor Role",
+        "type": "barchart",
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12},
+        "targets": [
+          {
+            "expr": "topk(10, sum by (actor_role) (increase(sn1ma_aim_requests_total[24h])))",
+            "legendFormat": "{{actor_role}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "custom": {"orientation": "horizontal"}
+          }
+        }
+      },
+      {
+        "id": 8,
+        "title": "Language Filter Effectiveness",
+        "type": "timeseries",
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 12},
+        "targets": [
+          {
+            "expr": "rate(sn1ma_prescriptive_language_scans_total[5m])",
+            "legendFormat": "Scans/sec"
+          },
+          {
+            "expr": "rate(sn1ma_prescriptive_language_blocks_total[5m])",
+            "legendFormat": "Blocks/sec"
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Governance Health Score",
+        "type": "stat",
+        "gridPos": {"h": 6, "w": 8, "x": 0, "y": 20},
+        "targets": [
+          {
+            "expr": "(1 - (sum(increase(sn1ma_aim_validation_failures_total[24h])) / sum(increase(sn1ma_aim_requests_total[24h])))) * 100",
+            "legendFormat": "Health Score %"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "min": 0,
+            "max": 100,
+            "unit": "percent",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": 0, "color": "red"},
+                {"value": 70, "color": "yellow"},
+                {"value": 90, "color": "green"}
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 10,
+        "title": "OTS Compliance Level",
+        "type": "stat",
+        "gridPos": {"h": 6, "w": 8, "x": 8, "y": 20},
+        "targets": [
+          {
+            "expr": "sn1ma_ots_assessment_score",
+            "legendFormat": "OTS Score"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "min": 0,
+            "max": 28,
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": 0, "color": "red"},
+                {"value": 12, "color": "yellow"},
+                {"value": 17, "color": "orange"},
+                {"value": 23, "color": "green"}
+              ]
+            },
+            "mappings": [
+              {"type": "range", "options": {"from": 0, "to": 11, "result": {"text": "Non-Compliant"}}},
+              {"type": "range", "options": {"from": 12, "to": 16, "result": {"text": "Basic"}}},
+              {"type": "range", "options": {"from": 17, "to": 22, "result": {"text": "Operational"}}},
+              {"type": "range", "options": {"from": 23, "to": 28, "result": {"text": "Public-Ready"}}}
+            ]
+          }
+        }
+      },
+      {
+        "id": 11,
+        "title": "Audit Log Integrity",
+        "type": "stat",
+        "gridPos": {"h": 6, "w": 8, "x": 16, "y": 20},
+        "targets": [
+          {
+            "expr": "sn1ma_audit_logs_verified / sn1ma_audit_logs_total",
+            "legendFormat": "Integrity %"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "min": 0,
+            "max": 1,
+            "unit": "percentunit",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                {"value": 0.99, "color": "red"},
+                {"value": 0.999, "color": "yellow"},
+                {"value": 1.0, "color": "green"}
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "annotations": {
+      "list": [
+        {
+          "name": "Governance Incidents",
+          "datasource": "Prometheus",
+          "enable": true,
+          "iconColor": "red",
+          "expr": "ALERTS{alertname=~\"AIMValidationFailureHigh|IncidentLogged\"}"
+        }
+      ]
+    },
+    "templating": {
+      "list": [
+        {
+          "name": "actor_role",
+          "type": "query",
+          "datasource": "Prometheus",
+          "query": "label_values(sn1ma_aim_requests_total, actor_role)",
+          "multi": true,
+          "includeAll": true
+        }
+      ]
+    }
+  }
+}
