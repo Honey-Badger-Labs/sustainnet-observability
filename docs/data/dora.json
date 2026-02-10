@@ -1,11 +1,19 @@
 {
   "window_days": 30,
-  "generated_at": "2026-01-17T00:00:00Z",
-  "overall": {
-    "deployment_frequency_per_day": null,
-    "lead_time_hours_median": null,
-    "change_failure_rate": null,
-    "time_to_restore_hours_avg": null
+  "generated_at": "2026-01-18T08:38:04.877429Z",
+  "repos": {
+    "Honey-Badger-Labs/sustainnet-observability": {
+      "deployments": 3,
+      "deployment_frequency_per_day": 0.1,
+      "lead_time_hours_median": null,
+      "change_failure_rate": 1.0,
+      "time_to_restore_hours_avg": null
+    }
   },
-  "repos": {}
+  "overall": {
+    "deployment_frequency_per_day": 0.1,
+    "lead_time_hours_median": null,
+    "change_failure_rate": 1.0,
+    "time_to_restore_hours_avg": null
+  }
 }
