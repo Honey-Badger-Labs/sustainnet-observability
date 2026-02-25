@@ -34,6 +34,26 @@ sustainnet-observability/
 - **Infrastructure Monitoring**: AWS CloudWatch integration
 - **Automated Deployment**: GitHub Actions for CI/CD
 - **Scalable Architecture**: Monorepo structure for easy product onboarding
+- **Elite Engineering Intelligence**: 6-layer measurement framework (DORA, Flow, SPACE, SRE, Value, Risk)
+- **Executive Dashboard**: 12-metric governance view for C-suite visibility
+
+## Engineering Intelligence Framework
+
+SustainNet implements the **Elite Engineering Intelligence Stack** — a 6-layer measurement framework used by FAANG-level organizations:
+
+| Layer | Question Answered | Key Metrics |
+|-------|-------------------|-------------|
+| **Delivery (DORA)** | How fast? | Deploy frequency, Lead time, CFR, MTTR |
+| **Flow** | Where is waste? | Flow time, Flow efficiency, Distribution |
+| **SPACE** | Are teams healthy? | Satisfaction, PR review time |
+| **Reliability** | Are customers safe? | SLO compliance, Error budgets |
+| **Value** | Did it matter? | Feature adoption rate |
+| **Risk** | Are we exposed? | Vulnerability aging |
+
+📚 **Full Documentation:**
+- [Elite Engineering Intelligence Stack](docs/ELITE-ENGINEERING-INTELLIGENCE-STACK.md)
+- [Executive Dashboard Specification](docs/EXECUTIVE-DASHBOARD-SPECIFICATION.md)
+- [Improvement Priorities](docs/IMPROVEMENT-PRIORITIES.md)
 
 ## Getting Started
 
