@@ -44,7 +44,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
-            git pull --rebase origin "${{ github.ref_name }}"
             git commit -m "chore(dora): update DORA metrics JSON"
+            git pull --rebase origin "${{ github.ref_name }}"
             git push
           fi
