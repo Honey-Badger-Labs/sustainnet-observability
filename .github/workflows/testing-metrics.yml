@@ -32,7 +32,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes in docs/data/testing.json; skipping commit."
           else
-            git pull --rebase origin "${{ github.ref_name }}"
             git commit -m "chore(metrics): update testing metrics JSON"
+            git pull --rebase origin "${{ github.ref_name }}"
             git push
           fi
