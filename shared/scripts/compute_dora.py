@@ -252,7 +252,13 @@ def main():
             owner, repo = full.split("/", 1)
         except ValueError:
             continue
-        metrics = compute_repo_metrics(owner, repo, token, args.window_days)
+        try:
+            metrics = compute_repo_metrics(owner, repo, token, args.window_days)
+        except requests.exceptions.HTTPError as e:
+            # Private/missing repos are not readable with the workflow's GITHUB_TOKEN; skip them.
+            print(f"Skipping {full}: {e}")
+            aggregate.setdefault("skipped", []).append(full)
+            continue
         aggregate["repos"][full] = metrics
 
         totals["deployments"] += metrics.get("deployments", 0) or 0

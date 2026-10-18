@@ -255,9 +255,16 @@ def main():
         "defect_leakage_rate": 0.0,  # Will be set to None if no repos have data
     }
     repos_out: Dict[str, Dict] = {}
+    skipped: List[str] = []
 
     for owner, repo in REPOS:
-        metrics = compute_repo_testing(owner, repo, window_days)
+        try:
+            metrics = compute_repo_testing(owner, repo, window_days)
+        except urllib.error.HTTPError as e:
+            # Private/missing repos are not readable with the workflow's GITHUB_TOKEN; skip them.
+            print(f"Skipping {owner}/{repo}: HTTP {e.code}")
+            skipped.append(f"{owner}/{repo}")
+            continue
         repos_out[f"{owner}/{repo}"] = metrics
         # Aggregate automation rate and defect leakage as simple mean
         overall["automation_rate"] += metrics["automation_rate"]
@@ -267,8 +274,8 @@ def main():
 
         # Coverage remains None until data sources are connected
 
-    if REPOS:
-        overall["automation_rate"] /= len(REPOS)
+    if repos_out:
+        overall["automation_rate"] /= len(repos_out)
         # Only average defect leakage if we have data
         repos_with_leakage = sum(1 for r in repos_out.values() if r["defect_leakage_rate"] is not None)
         if repos_with_leakage > 0:
@@ -279,6 +286,7 @@ def main():
     out = {
         "overall": overall,
         "repos": repos_out,
+        "skipped": skipped,
         "window_days": window_days,
         "timestamp": datetime.now(tz=UTC).isoformat().replace("+00:00", "Z"),
     }
