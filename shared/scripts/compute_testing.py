@@ -292,7 +292,7 @@ def main():
     }
 
     # Write to docs/data/testing.json (ensure directory exists)
-    target_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "docs", "data", "testing.json")
+    target_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "docs", "data", "testing.json")
     os.makedirs(os.path.dirname(target_path), exist_ok=True)
     with open(target_path, "w") as f:
         json.dump(out, f, indent=2)
