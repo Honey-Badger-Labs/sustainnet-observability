@@ -211,18 +211,12 @@ def main():
     token = os.getenv("GITHUB_TOKEN") or os.getenv("GH_TOKEN")
 
     # Default SustainNet repos if no file provided
+    # All SustainNet repos except observability are private. GitHub Actions' default
+    # GITHUB_TOKEN lacks cross-repo access. To include private repos, set up a
+    # Personal Access Token (PAT) with 'repo' scope and pass via --repos-file.
+    # Only the public repo is queried by default.
     default_repos = [
-        "Honey-Badger-Labs/sustainnet-vision",
-        "Honey-Badger-Labs/Hello-World",
-        "Honey-Badger-Labs/Hello-World-Flow-Test",
-        "Honey-Badger-Labs/Family-Meal-Planner",
-        "Honey-Badger-Labs/Family-Meal-Planner-App",
-        "Honey-Badger-Labs/Family-Meal-Planner-Types",
-        "Honey-Badger-Labs/Family-Meal-Planner-IaC",
-        "Honey-Badger-Labs/sustainnet-website",
-        "Honey-Badger-Labs/sustainnet-monorepo",
-        "Honey-Badger-Labs/sustainnet-observability",
-        "Honey-Badger-Labs/GH1MA",
+        "Honey-Badger-Labs/sustainnet-observability",  # Only public repo
     ]
 
     repos: List[str] = []
