@@ -45,6 +45,6 @@ jobs:
             echo "No changes to commit"
           else
             git commit -m "chore(dora): update DORA metrics JSON"
-            git pull --rebase origin "${{ github.ref_name }}"
+            git pull --rebase origin "$GITHUB_REF_NAME"
             git push
           fi
