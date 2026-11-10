@@ -5,6 +5,11 @@ on:
     - cron: '0 2 * * *' # daily at 02:00 UTC
   workflow_dispatch: {}
 
+# contents: write is required because this job commits docs/data/testing.json.
+# contents: read alone would break the existing commit step.
+permissions:
+  contents: write
+
 jobs:
   compute-testing:
     runs-on: ubuntu-latest
@@ -33,6 +38,6 @@ jobs:
             echo "No changes in docs/data/testing.json; skipping commit."
           else
             git commit -m "chore(metrics): update testing metrics JSON"
-            git pull --rebase origin "${{ github.ref_name }}"
+            git pull --rebase origin "$GITHUB_REF_NAME"
             git push
           fi
