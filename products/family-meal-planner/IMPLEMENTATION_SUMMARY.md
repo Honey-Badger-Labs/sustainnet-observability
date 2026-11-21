@@ -116,7 +116,7 @@
    
 2. **Test Locally** (Ready)
    - Run `./setup-local-demo.sh` to start observability stack
-   - Access Grafana at http://localhost:3000 (admin/admin)
+   - Access Grafana at http://localhost:3002 (username from GRAFANA_ADMIN_USER, password from GRAFANA_ADMIN_PASSWORD in .env)
    - Verify metrics flowing from API to Prometheus
    - Test dashboards with real data
 

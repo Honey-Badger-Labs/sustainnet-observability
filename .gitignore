@@ -65,3 +65,5 @@ logs/
 .env
 .env.local
 .env.*.local
+# Keep the example file; never commit real values.
+!.env.example

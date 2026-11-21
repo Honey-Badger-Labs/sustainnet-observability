@@ -133,7 +133,7 @@ docker-compose logs -f
 ```bash
 # Grafana
 open http://localhost:3001
-# Login: admin / admin123
+# Login: admin (or GRAFANA_ADMIN_USER) / the value of GRAFANA_ADMIN_PASSWORD in your .env
 
 # Prometheus
 open http://localhost:9090

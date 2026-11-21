@@ -3,13 +3,29 @@
 # Local Grafana Setup Script for SustainNet Observability Demo
 # This script sets up Grafana with sample data for dashboard preview
 
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+ENV_FILE="$ROOT/.env"
+
 echo "🚀 Setting up SustainNet Observability Dashboards Locally"
 echo "======================================================="
 
-# Default Grafana credentials
-GRAFANA_URL="http://localhost:3000"
-GRAFANA_USER="admin"
-GRAFANA_PASS="admin"
+if [ ! -f "$ENV_FILE" ]; then
+    echo "❌ No .env file found at $ENV_FILE"
+    echo "   Copy the example and set your own passwords:"
+    echo "   cp $ROOT/.env.example $ENV_FILE"
+    exit 1
+fi
+
+set -a
+# shellcheck disable=SC1090
+. "$ENV_FILE"
+set +a
+
+GRAFANA_URL="${GRAFANA_URL:-http://localhost:3000}"
+GRAFANA_USER="${GRAFANA_ADMIN_USER:-admin}"
+: "${GRAFANA_ADMIN_PASSWORD:?Set GRAFANA_ADMIN_PASSWORD in .env (copy .env.example)}"
 
 # Wait for Grafana to be ready
 echo "⏳ Waiting for Grafana to be ready..."
@@ -24,19 +40,23 @@ fi
 
 echo "✅ Grafana is running"
 
-# Change default password
-echo "🔐 Updating default password..."
-curl -s -X PUT "$GRAFANA_URL/api/user/password" \
-    -H "Content-Type: application/json" \
-    -d "{\"oldPassword\": \"admin\", \"newPassword\": \"sustainnet2026\"}" \
-    --user "$GRAFANA_USER:$GRAFANA_PASS"
-
-if [ $? -eq 0 ]; then
-    echo "✅ Password updated to: sustainnet2026"
-    GRAFANA_PASS="sustainnet2026"
-else
-    echo "⚠️  Password update failed, using default"
+# Optionally change Grafana from a fresh-install password to the one in .env.
+# A brand-new Grafana typically starts with the username and password "admin".
+# This never prints the new password.
+if [ -n "${GRAFANA_INITIAL_PASSWORD:-}" ]; then
+    echo "🔐 Updating Grafana password from GRAFANA_INITIAL_PASSWORD..."
+    BODY="$(GRAFANA_INITIAL_PASSWORD="$GRAFANA_INITIAL_PASSWORD" GRAFANA_ADMIN_PASSWORD="$GRAFANA_ADMIN_PASSWORD" python3 -c 'import json,os; print(json.dumps({"oldPassword": os.environ["GRAFANA_INITIAL_PASSWORD"], "newPassword": os.environ["GRAFANA_ADMIN_PASSWORD"]}))')"
+    if curl -s -X PUT "$GRAFANA_URL/api/user/password" \
+        -H "Content-Type: application/json" \
+        -d "$BODY" \
+        --user "$GRAFANA_USER:$GRAFANA_INITIAL_PASSWORD" > /dev/null; then
+        echo "✅ Password updated to the value of GRAFANA_ADMIN_PASSWORD in your .env"
+    else
+        echo "⚠️  Password update failed; will try GRAFANA_ADMIN_PASSWORD as it stands"
+    fi
 fi
+
+GRAFANA_PASS="$GRAFANA_ADMIN_PASSWORD"
 
 # Create TestData data source for demo
 echo "📊 Creating TestData data source..."
@@ -104,9 +124,9 @@ echo ""
 echo "🎉 Setup Complete!"
 echo "=================="
 echo ""
-echo "🌐 Grafana URL: http://localhost:3000"
-echo "👤 Username: admin"
-echo "🔑 Password: sustainnet2026"
+echo "🌐 Grafana URL: $GRAFANA_URL"
+echo "👤 Username: $GRAFANA_USER"
+echo "🔑 Password: the value of GRAFANA_ADMIN_PASSWORD in your .env"
 echo ""
 echo "📊 Available Dashboards:"
 echo "   • SustainNet Website - Executive Summary"

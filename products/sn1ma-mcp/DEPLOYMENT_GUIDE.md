@@ -67,7 +67,7 @@ services:
       - grafana-data:/var/lib/grafana
       - ./dashboards:/etc/grafana/provisioning/dashboards
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin123
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:?set GRAFANA_ADMIN_PASSWORD in .env}
       - GF_USERS_ALLOW_SIGN_UP=false
     depends_on:
       - prometheus
@@ -130,8 +130,10 @@ open http://localhost:9090
 # Binary: http://localhost:3000
 
 # Login:
-Username: admin
-Password: admin123 (or admin for binary install)
+Username: admin (or GRAFANA_ADMIN_USER in your .env)
+Password: the value of GRAFANA_ADMIN_PASSWORD in your .env
+# A fresh binary install of Grafana starts with the username and password admin.
+# Change it and put the new password in .env before opening this stack to a network.
 ```
 
 **Add Prometheus Data Source:**

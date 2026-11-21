@@ -63,6 +63,19 @@ SustainNet implements the **Elite Engineering Intelligence Stack** — a 6-layer
 4. Use the shared IaC modules for consistent infrastructure
 5. Deploy using GitHub Actions workflows
 
+
+## Local credentials
+
+Copy [`.env.example`](.env.example) to `.env` and set `GRAFANA_ADMIN_PASSWORD` and, if you use the Family Meal Planner stack, `POSTGRES_PASSWORD`, before running any local Grafana or Postgres demo:
+
+```bash
+cp .env.example .env
+```
+
+Never commit `.env`. The compose files and setup scripts read these variables and will refuse to start if they are empty.
+
+Git history of this repository still contains old demo passwords. If any live system was set up with those values, change them there.
+
 ## Contributing
 
 See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidelines on adding new products or modifying shared components.
