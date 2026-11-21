@@ -1,3 +1,8 @@
+# Local observability stack for Family Meal Planner.
+# Passwords come from the repo-root .env (copy .env.example).
+# From this directory: docker compose --env-file ../../../.env up -d
+# Or run products/family-meal-planner/setup-local-demo.sh
+
 version: '3.8'
 
 services:
@@ -21,7 +26,7 @@ services:
     ports:
       - "3002:3000"
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:?set GRAFANA_ADMIN_PASSWORD in .env}
       - GF_USERS_ALLOW_SIGN_UP=false
     volumes:
       - grafana_data:/var/lib/grafana
@@ -48,7 +53,7 @@ services:
     ports:
       - "9187:9187"
     environment:
-      - DATA_SOURCE_NAME=postgresql://sustainnet:localdev123@postgres:5432/sustainnet_local?sslmode=disable
+      - DATA_SOURCE_NAME=postgresql://${POSTGRES_USER:-sustainnet}:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@postgres:5432/${POSTGRES_DB:-sustainnet_local}?sslmode=disable
     networks:
       - fmp-observability
 
